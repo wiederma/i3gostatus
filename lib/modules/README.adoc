@@ -1,0 +1,152 @@
+= How to Write Modules for i3gostatus?
+
+This directory contains all the available modulesfor `i3gostatus`. Each
+module can be enabled and configured via the configuration file. Specific
+documentation for particular modules is available as a README file in
+the relevant subdirectory.
+
+== Directory Structure
+
+You want to be a module author and write modules to expand the awesomeness
+of `i3gostatus`? That's great!! In the following there is a brief tutorial
+about writing modules. This tutorial shows what has to be implemented to
+create a minimal "hello world" module.
+
+At first, create a subdirectory in the `modules` folder and call it like
+the module you want to create. Also, create a file with the same name within
+that directory. It is nice when you create a README as well, the `asciidoc`
+language is preferred. It should now look like this:
+
+----
+.
+└── hello_world
+    ├── hello_world.go
+    └── README.adoc
+----
+
+== Boilerplate Code for hello_world
+
+Here is some boilerplate code for the `hello_world.go` file to start with:
+
+[source, go]
+----
+package hello_world  // <1>
+
+import (
+	"time"
+
+	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/model"
+)
+
+const (
+	name = "hello_world"
+	moduleName = "i3gostatus.modules." + name  // <2>
+)
+
+type Config struct {  // <3>
+	model.BaseConfig
+	Output string
+}
+
+func (config *Config) ReadConfig(configTree *toml.TomlTree) {  // <4>
+	config.BaseConfig.ReadConfig(name, configTree)
+
+	config.Output = configTree.GetDefault(name + ".output", "").(string)  // <5>
+}
+
+func (config *Config) Run(out chan *model.I3BarBlockWrapper, index int) {  // <6>
+	ticker := time.NewTicker(config.Period)
+	outputBlock := model.NewBlock(moduleName, index)
+
+	for range ticker.C {  // <7>
+		outputBlock.FullText = config.Output
+		out <- outputBlock  // <8>
+	}
+}
+----
+
+<1> The package name of the module. It should be the same name as the directory
+    it lives in.
+<2> These guys are here for future usage. It might become important once multiple
+    instances of modules are supported...
+<3> This is the `Config` type for this module. Feel free to extend it as needed,
+    but your *must* embed the `model.BaseConfig` type in order to prevent
+    strange things from happening.
+<4> This method is used to obtain all configuration values for this module from
+    the config file. Do not forget to read the base config as well. It is needed
+    to support things like colors, separators, ... In order to define default
+    values, the method `configTree.GetDefault` should be used. Please note that
+    `configTree` methods return interface values which have to be casted to the
+    underlaying types. It is a bit tricky...
+<5> Read the value `hello_world.output`; note that dotted paths are used!
+<6> Main Go-Routine of the module. Since Go is a highly concurrent language,
+    a module can be considered as a program running on its own. So, module
+    authors are quite free their module design. To generate actual output on
+    the i3bar, an appropriately filled `outputBlock` has to be send to the `out`
+    channel.
+<7> The main loop of the block. It should be implemented using the ticker, since
+    that way `i3gostatus` can rate limit the outputted json strings properly.
+    Otherwise too much data might be generated under some circumstances.
+<8> Send the date structure to the channel. To learn which fields are available,
+    please have a look in the `model` package or just read the i3bar
+    https://i3wm.org/docs/i3bar-protocol.html[documentation]; the field names
+    in the structure have corresponding names.
+
+The corresponding config file (in order to print "hello world!") might look
+like this:
+
+[source, toml]
+----
+modules = ["hello_world"]
+
+[hello_world]
+output = "hello world!"
+----
+
+== Register the Module
+
+Go is not a dynamic typed language as Python, so there is another mechanism
+for loading modules at runtime: All "function pointers" (that's how a
+C programmer would call them) are stored in an array. This array is then
+used the find the main routine of an enabled module in memory. In order to
+store those pointers there is a file `registry.go`:
+
+[source, go]
+----
+package i3gostatus
+
+// Every single module package must be imported and added to the registry!
+import (
+	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/static"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/hello_world"
+)
+
+var AvailableModules map[string]model.Module
+var EnabledModules []model.Module
+
+func init() {
+	AvailableModules = make(map[string]model.Module)
+
+	// Add all available modules here!
+	AvailableModules["datetime"] = &datetime.Config{}
+	AvailableModules["static"] = &static.Config{}
+	AvailableModules["hello_world"] = &hellor_world.Config{}
+}
+----
+
+Import your module and add an instance of the `Config` type to the
+`AvailableModules` map. Now the module can be enabled in the config using
+the specified key in the map.
+
+== Test the Code
+
+Just call the main function of `i3gostatus` and see what happens! It should
+print json strings regularly. Do not forget to enable your module in the
+config!
+
+----
+$ go run cmd/main.go
+----
