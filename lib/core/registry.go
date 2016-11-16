@@ -5,7 +5,6 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/static"
-	"github.com/rumpelsepp/i3gostatus/lib/modules/syncthing"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/temperature"
 )
 
@@ -18,6 +17,5 @@ func init() {
 	// Add all available modules here!
 	AvailableModules["datetime"] = &datetime.Config{}
 	AvailableModules["static"] = &static.Config{}
-	AvailableModules["syncthing"] = &syncthing.Config{}
 	AvailableModules["temperature"] = &temperature.Config{}
 }
