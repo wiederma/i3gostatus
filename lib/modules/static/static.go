@@ -1,3 +1,6 @@
+// Package static adds a static string to i3bar. Its main purpose is
+// demonstrating the module API of `i3gostatus` and it acts as a template for
+// new modules.
 package static
 
 import (
@@ -14,21 +17,17 @@ const (
 
 type Config struct {
 	model.BaseConfig
-	Output string
 }
 
-func (config *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
-	ticker := time.NewTicker(config.Period)
-	outputBlock := model.NewBlock(moduleName, config.BaseConfig, index)
+func (c *Config) ParseConfig(configTree *toml.TomlTree) {
+	c.BaseConfig.Parse(name, configTree)
+}
 
-	for range ticker.C {
-		outputBlock.FullText = config.Output
+func (c *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
+
+	for range time.NewTicker(c.Period).C {
+		outputBlock.FullText = c.Format
 		out <- outputBlock
 	}
-}
-
-func (config *Config) ReadConfig(configTree *toml.TomlTree) {
-	config.BaseConfig.ReadConfig(name, configTree)
-
-	config.Output = configTree.GetDefault(name+".output", "").(string)
 }

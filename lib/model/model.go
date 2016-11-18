@@ -45,13 +45,30 @@ type I3ClickEvent struct {
 const DefaultPeriod = 1000
 
 type BaseConfig struct {
+	// TODO: Duplication in NewBlock()?
 	I3BarBlock
 	Period time.Duration
+	Format string
+}
+
+func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
+	c.Name = name
+	c.Color = configTree.GetDefault(c.Name+".color", "").(string)
+	c.Background = configTree.GetDefault(c.Name+".background", "").(string)
+	c.Border = configTree.GetDefault(c.Name+".border", "").(string)
+	c.MinWidth = configTree.GetDefault(c.Name+".min_width", "").(string)
+	c.Align = configTree.GetDefault(c.Name+".align", "").(string)
+	c.Urgent = configTree.GetDefault(c.Name+".urgent", false).(bool)
+	c.Separator = configTree.GetDefault(c.Name+".separator", false).(bool)
+	c.SeparatorBlockWidth = configTree.GetDefault(c.Name+".separator_block_width", "").(string)
+	c.Markup = configTree.GetDefault(c.Name+".markup", "").(string)
+	c.Period = time.Duration(configTree.GetDefault(c.Name+".period", int64(DefaultPeriod)).(int64)) * time.Millisecond
+	c.Format = configTree.GetDefault(c.Name+".format", "").(string)
 }
 
 type Module interface {
 	Run(chan *I3BarBlockWrapper, int)
-	ReadConfig(configTree *toml.TomlTree)
+	ParseConfig(configTree *toml.TomlTree)
 }
 
 func NewHeader() *I3BarHeader {
@@ -79,18 +96,4 @@ func NewBlock(name string, initValues BaseConfig, index int) *I3BarBlockWrapper 
 		},
 		Index: index,
 	}
-}
-
-func (config *BaseConfig) ReadConfig(name string, configTree *toml.TomlTree) {
-	config.Name = name
-	config.Color = configTree.GetDefault(config.Name+".color", "").(string)
-	config.Background = configTree.GetDefault(config.Name+".background", "").(string)
-	config.Border = configTree.GetDefault(config.Name+".border", "").(string)
-	config.MinWidth = configTree.GetDefault(config.Name+".min_width", "").(string)
-	config.Align = configTree.GetDefault(config.Name+".align", "").(string)
-	config.Urgent = configTree.GetDefault(config.Name+".urgent", false).(bool)
-	config.Separator = configTree.GetDefault(config.Name+".separator", false).(bool)
-	config.SeparatorBlockWidth = configTree.GetDefault(config.Name+".separator_block_width", "").(string)
-	config.Markup = configTree.GetDefault(config.Name+".markup", "").(string)
-	config.Period = time.Duration(configTree.GetDefault(config.Name+".period", int64(DefaultPeriod)).(int64)) * time.Millisecond
 }

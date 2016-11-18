@@ -5,11 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"github.com/rumpelsepp/i3gostatus/lib/registry"
 	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
-func WriteHeader() {
+func writeHeader() {
 	header := model.NewHeader()
 	fmt.Println(utils.Json(header))
 	// i3bar is a streaming JSON parser, so we need to open the endless array.
@@ -17,34 +19,32 @@ func WriteHeader() {
 }
 
 func Run(options *runtimeOptions) {
-	nModules := 0
-	configTree := loadConfig(options.configPath)
-	outChannel := make(chan *model.I3BarBlockWrapper)
-	rateLimit := findFastestPeriod(configTree)
+	configTree := config.Load(options.configPath)
+	enabledModules := registry.Initialize(configTree)
+	rateLimit := utils.FindFastestModule(configTree)
 	rateTimer := time.NewTimer(rateLimit)
+	outChannel := make(chan *model.I3BarBlockWrapper)
+	outSlice := make([]*model.I3BarBlock, len(enabledModules))
 
-	if len(EnabledModules) == 0 {
-		fmt.Println("No modules are enabled!")
+	if len(enabledModules) == 0 {
+		fmt.Fprintln(os.Stderr, "No modules are enabled!")
 		os.Exit(1)
 	}
 
-	WriteHeader()
+	writeHeader()
 
-	for i, v := range EnabledModules {
-		v.ReadConfig(configTree)
+	for i, v := range enabledModules {
+		v.ParseConfig(configTree)
 		go v.Run(outChannel, i)
-		nModules += 1
 	}
-
-	outputSlice := make([]*model.I3BarBlock, nModules)
 
 	for {
 		select {
 		case block := <-outChannel:
-			outputSlice[block.Index] = &block.I3BarBlock
+			outSlice[block.Index] = &block.I3BarBlock
 		case <-rateTimer.C:
 			rateTimer.Reset(rateLimit)
-			fmt.Println(fmt.Sprintf("%s,", utils.Json(outputSlice)))
+			fmt.Println(fmt.Sprintf("%s,", utils.Json(outSlice)))
 		}
 	}
 }

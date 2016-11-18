@@ -1,42 +1,62 @@
+// Package temperature shows the current CPU temperature which is read out from
+// the relevant files in `/sys/class/thermal/`.
 package temperature
 
 import (
-	"time"
+	"fmt"
 	"io/ioutil"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
 const (
-	name       = "temperature"
-	moduleName = "i3gostatus.modules." + name
+	name               = "temperature"
+	moduleName         = "i3gostatus.modules." + name
+	defaultPeriod      = 5000
+	defaultFormat      = "%s °C"
+	defaultUrgentTemp  = 70
+	defaultUrgentColor = "#FF0000"
 )
 
 type Config struct {
 	model.BaseConfig
-	Output string
+	UrgentTemp  int
+	UrgentColor string
 }
 
-func (config *Config) ReadConfig(configTree *toml.TomlTree) {
-	config.BaseConfig.ReadConfig(name, configTree)
+func (c *Config) ParseConfig(configTree *toml.TomlTree) {
+	c.BaseConfig.Parse(name, configTree)
+	c.BaseConfig.Period = config.GetDurationMs(configTree, c.Name+".period", defaultPeriod)
+	c.Format = config.GetString(configTree, name+".format", defaultFormat)
+	c.UrgentTemp = config.GetInt(configTree, name+".urgent_temp", defaultUrgentTemp)
+	c.UrgentColor = config.GetString(configTree, name+".urgent_color", defaultUrgentColor)
 }
 
-func (config *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
-	ticker := time.NewTicker(config.Period)
-	outputBlock := model.NewBlock(moduleName, config.BaseConfig, index)
+func (c *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
+	thermalFile := "/sys/class/thermal/thermal_zone0/temp"
 	var temperatureStr string
 
-	for range ticker.C {
-		data, err := ioutil.ReadFile("/sys/class/thermal/thermal_zone0/temp")
-		if err != nil {
+	for range time.NewTicker(c.Period).C {
+		if data, err := ioutil.ReadFile(thermalFile); err == nil {
+			temperatureStr = strings.TrimSuffix(strings.TrimSpace(string(data)), "000")
+		} else {
 			panic(err)
 		}
 
-		temperatureStr = strings.TrimSuffix(strings.TrimSpace(string(data)), "000")
+		if temp, err := strconv.Atoi(temperatureStr); err == nil {
+			if temp >= c.UrgentTemp {
+				outputBlock.Urgent = true
+				outputBlock.Color = c.UrgentColor
+			}
+		}
 
-		outputBlock.FullText = temperatureStr
+		outputBlock.FullText = fmt.Sprintf(c.Format, temperatureStr)
 		out <- outputBlock
 	}
 }

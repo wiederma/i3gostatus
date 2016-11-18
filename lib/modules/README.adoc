@@ -36,6 +36,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
@@ -49,18 +50,17 @@ type Config struct {  // <3>
 	Output string
 }
 
-func (config *Config) ReadConfig(configTree *toml.TomlTree) {  // <4>
-	config.BaseConfig.ReadConfig(name, configTree)
+func (c *Config) ReadConfig(configTree *toml.TomlTree) {  // <4>
+	c.BaseConfig.Parse(name, configTree)
 
-	config.Output = configTree.GetDefault(name + ".output", "").(string)  // <5>
+	c.Output = config.GetString(configTree, name + ".output", "")  // <5>
 }
 
-func (config *Config) Run(out chan *model.I3BarBlockWrapper, index int) {  // <6>
-	ticker := time.NewTicker(config.Period)
-	outputBlock := model.NewBlock(moduleName, index)
+func (c *Config) Run(out chan *model.I3BarBlockWrapper, index int) {  // <6>
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
 
-	for range ticker.C {  // <7>
-		outputBlock.FullText = config.Output
+	for range time.NewTicker(c.Period).C {  // <7>
+		outputBlock.FullText = c.Output
 		out <- outputBlock  // <8>
 	}
 }
@@ -69,16 +69,15 @@ func (config *Config) Run(out chan *model.I3BarBlockWrapper, index int) {  // <6
 <1> The package name of the module. It should be the same name as the directory
     it lives in.
 <2> These guys are here for future usage. It might become important once multiple
-    instances of modules are supported...
+    instances of modules are supported... For default config values if your
+    module you could add values here, e.g. `defaultFormat`.
 <3> This is the `Config` type for this module. Feel free to extend it as needed,
     but your *must* embed the `model.BaseConfig` type in order to prevent
     strange things from happening.
 <4> This method is used to obtain all configuration values for this module from
     the config file. Do not forget to read the base config as well. It is needed
-    to support things like colors, separators, ... In order to define default
-    values, the method `configTree.GetDefault` should be used. Please note that
-    `configTree` methods return interface values which have to be casted to the
-    underlaying types. It is a bit tricky...
+    to support things like colors, separators, ... Use the methods provided by
+    the `config` module, it should be self explonary.
 <5> Read the value `hello_world.output`; note that dotted paths are used!
 <6> Main Go-Routine of the module. Since Go is a highly concurrent language,
     a module can be considered as a program running on its own. So, module
@@ -124,21 +123,20 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/modules/hello_world"
 )
 
-var AvailableModules map[string]model.Module
-var EnabledModules []model.Module
+var availableModules map[string]model.Module
 
 func init() {
-	AvailableModules = make(map[string]model.Module)
+	availableModules = make(map[string]model.Module)
 
 	// Add all available modules here!
-	AvailableModules["datetime"] = &datetime.Config{}
-	AvailableModules["static"] = &static.Config{}
-	AvailableModules["hello_world"] = &hellor_world.Config{}
+	availableModules["datetime"] = &datetime.Config{}
+	availableModules["static"] = &static.Config{}
+	availableModules["hello_world"] = &hellor_world.Config{}
 }
 ----
 
 Import your module and add an instance of the `Config` type to the
-`AvailableModules` map. Now the module can be enabled in the config using
+`availableModules` map. Now the module can be enabled in the config using
 the specified key in the map.
 
 == Test the Code

@@ -9,12 +9,6 @@
 			"revisionTime": "2016-08-20T08:06:32Z"
 		},
 		{
-			"checksumSHA1": "IIt+7+2TNuLxJN9izdLB+xoJWL8=",
-			"path": "github.com/casimir/xdg-go",
-			"revision": "372ccc2180dab73316615641d5617c5ed3e35529",
-			"revisionTime": "2016-03-29T19:54:04Z"
-		},
-		{
 			"checksumSHA1": "WRu+mhZ2PfQu27qRr69HVGjtN4Q=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
