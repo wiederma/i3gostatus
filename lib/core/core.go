@@ -1,6 +1,8 @@
 package i3gostatus
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -11,11 +13,21 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
-func writeHeader() {
-	header := model.NewHeader()
+func writeHeader(options *runtimeOptions) {
+	header := model.NewHeader(options.clickEvents)
 	fmt.Println(utils.Json(header))
 	// i3bar is a streaming JSON parser, so we need to open the endless array.
 	fmt.Println("[")
+}
+
+func readStdin(out chan *model.I3ClickEvent) {
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		clickEvent := &model.I3ClickEvent{}
+		if err := json.Unmarshal(scanner.Bytes(), clickEvent); err == nil {
+			out <- clickEvent
+		}
+	}
 }
 
 func Run(options *runtimeOptions) {
@@ -25,17 +37,25 @@ func Run(options *runtimeOptions) {
 	rateTimer := time.NewTimer(rateLimit)
 	outChannel := make(chan *model.I3BarBlockWrapper)
 	outSlice := make([]*model.I3BarBlock, len(enabledModules))
+	// inChannel is only used when click_events is enabled.
+	// If click_events is disabled, it is never written to
+	// the channel.
+	inChannel := make(chan *model.I3ClickEvent)
 
 	if len(enabledModules) == 0 {
 		fmt.Fprintln(os.Stderr, "No modules are enabled!")
 		os.Exit(1)
 	}
 
-	writeHeader()
+	writeHeader(options)
+
+	if options.clickEvents {
+		go readStdin(inChannel)
+	}
 
 	for i, v := range enabledModules {
 		v.ParseConfig(configTree)
-		go v.Run(outChannel, i)
+		go v.Run(outChannel, inChannel, i)
 	}
 
 	for {

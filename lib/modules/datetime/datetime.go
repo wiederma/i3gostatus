@@ -35,7 +35,7 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 }
 
-func (c *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
+func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEvent, index int) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
 	var strftime bool
 

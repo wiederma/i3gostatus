@@ -67,16 +67,16 @@ func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
 }
 
 type Module interface {
-	Run(chan *I3BarBlockWrapper, int)
+	Run(chan *I3BarBlockWrapper, chan *I3ClickEvent, int)
 	ParseConfig(configTree *toml.TomlTree)
 }
 
-func NewHeader() *I3BarHeader {
+func NewHeader(click_events bool) *I3BarHeader {
 	return &I3BarHeader{
 		Version:     1,
 		StopSignal:  int(syscall.SIGSTOP),
 		ContSignal:  int(syscall.SIGCONT),
-		ClickEvents: false,
+		ClickEvents: click_events,
 	}
 }
 

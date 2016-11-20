@@ -37,7 +37,7 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.UrgentColor = config.GetString(configTree, name+".urgent_color", defaultUrgentColor)
 }
 
-func (c *Config) Run(out chan *model.I3BarBlockWrapper, index int) {
+func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEvent, index int) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
 	thermalFile := "/sys/class/thermal/thermal_zone0/temp"
 	var temperatureStr string
