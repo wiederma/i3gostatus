@@ -1,8 +1,8 @@
 package i3gostatus
 
 import (
+	"flag"
 	"github.com/rumpelsepp/i3gostatus/lib/config"
-	flag "github.com/spf13/pflag"
 )
 
 type runtimeOptions struct {
@@ -11,7 +11,7 @@ type runtimeOptions struct {
 
 func ParseOptions() *runtimeOptions {
 	options := &runtimeOptions{}
-	flag.StringVarP(&options.configPath, "config", "c", config.Path(), "Set config path")
+	flag.StringVar(&options.configPath, "config", config.Path(), "Set config path")
 	flag.Parse()
 	return options
 }
