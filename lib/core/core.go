@@ -76,6 +76,9 @@ func Run(options *runtimeOptions) {
 		select {
 		case block := <-outChannel:
 			outSlice[block.Index] = &block.I3BarBlock
+		case block := <-clickEventChannel:
+			outSlice[block.Index] = &block.I3BarBlock
+			fmt.Println(fmt.Sprintf("%s,", utils.Json(outSlice)))
 		case <-rateTimer.C:
 			rateTimer.Reset(rateLimit)
 			fmt.Println(fmt.Sprintf("%s,", utils.Json(outSlice)))
