@@ -1,9 +1,11 @@
 package load
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/pelletier/go-toml"
@@ -14,13 +16,13 @@ import (
 const (
 	name          = "load"
 	moduleName    = "i3gostatus.modules." + name
-	defaultFormat = "%s %s %s"
+	defaultFormat = "{{.Avg1}} {{.Avg5}} {{.Avg15}}"
 )
 
 type Load struct {
-	avg1  string
-	avg5  string
-	avg15 string
+	Avg1  string
+	Avg5  string
+	Avg15 string
 }
 
 func getLoad() Load {
@@ -48,10 +50,18 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+	t := template.Must(template.New("load").Parse(c.Format))
+	var outStr string
 
 	for range time.NewTicker(c.Period).C {
-		load := getLoad()
-		outputBlock.FullText = fmt.Sprintf(c.Format, load.avg1, load.avg5, load.avg15)
+		buf := bytes.NewBufferString(outStr)
+
+		if err := t.Execute(buf, getLoad()); err == nil {
+			outputBlock.FullText = buf.String()
+		} else {
+			outputBlock.FullText = fmt.Sprint(err)
+		}
+
 		args.OutCh <- outputBlock
 	}
 }
