@@ -31,13 +31,13 @@ const (
 	defaultUrgentColor = "#ff0000"
 )
 
-type Load struct {
+type load struct {
 	Avg1  string
 	Avg5  string
 	Avg15 string
 }
 
-func getLoad() Load {
+func getLoad() load {
 	loadfile := "/proc/loadavg"
 	var loadStr string
 	var loads []string
@@ -45,10 +45,10 @@ func getLoad() Load {
 	if data, err := ioutil.ReadFile(loadfile); err == nil {
 		loadStr = string(data)
 		loads = strings.Split(loadStr, " ")
-		return Load{loads[0], loads[1], loads[2]}
+		return load{loads[0], loads[1], loads[2]}
 	}
 
-	return Load{}
+	return load{}
 }
 
 type Config struct {
