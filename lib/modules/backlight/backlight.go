@@ -72,21 +72,21 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	decBrightnessCmd := []string{"xbacklight", "-dec", "5"}
 	var output float64
 
-	for range time.NewTicker(c.Period).C {
-		go func() {
-			// TODO: Update brightness after the click event has been processes.
-			for event := range args.InCh {
-				switch event.Button {
-				case model.MouseButtonLeft, model.MouseWheelUp:
-					exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
-				case model.MouseButtonRight, model.MouseWheelDown:
-					exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
-				default:
-					continue
-				}
+	go func() {
+		// TODO: Update brightness after the click event has been processes.
+		for event := range args.InCh {
+			switch event.Button {
+			case model.MouseButtonLeft, model.MouseWheelUp:
+				exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
+			case model.MouseButtonRight, model.MouseWheelDown:
+				exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
+			default:
+				continue
 			}
-		}()
+		}
+	}()
 
+	for range time.NewTicker(c.Period).C {
 		output = getBrightness()
 		outputBlock.FullText = fmt.Sprintf(c.Format, output)
 		args.OutCh <- outputBlock
