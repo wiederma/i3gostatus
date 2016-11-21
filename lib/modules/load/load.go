@@ -1,3 +1,12 @@
+// Package load reads the current load status of the system
+// from the proc filesystem. There are three values available:
+//   * Avg1
+//   * Avg5
+//   * Avg15
+// The output of this module can be configured via the format
+// configuration value; for rendering the text/template package
+// is used. The formatstring works like this:
+//   "Load: {{.Avg1}}"
 package load
 
 import (
