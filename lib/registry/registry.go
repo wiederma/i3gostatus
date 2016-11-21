@@ -6,6 +6,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/backlight"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/load"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/static"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/temperature"
 )
@@ -18,6 +19,7 @@ func init() {
 	// Add all available modules here!
 	availableModules["backlight"] = &backlight.Config{}
 	availableModules["datetime"] = &datetime.Config{}
+	availableModules["load"] = &load.Config{}
 	availableModules["static"] = &static.Config{}
 	availableModules["temperature"] = &temperature.Config{}
 }
