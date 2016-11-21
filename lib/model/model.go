@@ -42,6 +42,14 @@ type I3ClickEvent struct {
 	Y        int    `json:"y"`
 }
 
+const (
+	MouseButtonLeft   = 1
+	MouseButtonMiddle = 2
+	MouseButtonRight  = 3
+	MouseWheelUp      = 4
+	MouseWheelDown    = 5
+)
+
 const DefaultPeriod = 1000
 
 type ModuleArgs struct {
