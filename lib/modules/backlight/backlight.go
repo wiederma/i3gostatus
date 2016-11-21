@@ -6,6 +6,7 @@ package backlight
 import (
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -36,6 +37,8 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	brightnessFile := "/sys/class/backlight/intel_backlight/brightness"
 	maxBrightnessFile := "/sys/class/backlight/intel_backlight/max_brightness"
+	incBrightnessCmd := []string{"xbacklight", "-inc", "5"}
+	decBrightnessCmd := []string{"xbacklight", "-dec", "5"}
 	var output float64
 
 	for range time.NewTicker(c.Period).C {
@@ -63,6 +66,18 @@ func (c *Config) Run(args *model.ModuleArgs) {
 		} else {
 			panic(err)
 		}
+
+		go func() {
+			// TODO: Update brightness after the click event has been processes.
+			for event := range args.InCh {
+				switch event.Button {
+				case model.MouseButtonLeft, model.MouseWheelUp:
+					exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
+				case model.MouseButtonRight, model.MouseWheelDown:
+					exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
+				}
+			}
+		}()
 
 		outputBlock.FullText = fmt.Sprintf(c.Format, output)
 		args.OutCh <- outputBlock
