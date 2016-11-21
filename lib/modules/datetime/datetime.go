@@ -27,7 +27,7 @@ type Config struct {
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
-	c.BaseConfig.Parse(name, configTree)
+	c.BaseConfig.Parse(moduleName, configTree)
 	// http://fuckinggodateformat.com/
 	// The golang dateformat string is a mess... So, let's support the classic
 	// strftime syntax as well. This prefix must be present in the c.Format

@@ -20,7 +20,7 @@ type Config struct {
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
-	c.BaseConfig.Parse(name, configTree)
+	c.BaseConfig.Parse(moduleName, configTree)
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {

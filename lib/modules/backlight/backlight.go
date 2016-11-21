@@ -27,9 +27,9 @@ type Config struct {
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
-	c.BaseConfig.Parse(name, configTree)
-	c.BaseConfig.Period = config.GetDurationMs(configTree, c.Name+".period", defaultPeriod)
-	c.Format = config.GetString(configTree, c.Name+".format", defaultFormat)
+	c.BaseConfig.Parse(moduleName, configTree)
+	c.BaseConfig.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
+	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
