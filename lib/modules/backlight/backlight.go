@@ -81,6 +81,8 @@ func (c *Config) Run(args *model.ModuleArgs) {
 					exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
 				case model.MouseButtonRight, model.MouseWheelDown:
 					exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
+				default:
+					continue
 				}
 			}
 		}()
