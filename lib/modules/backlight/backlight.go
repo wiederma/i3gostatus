@@ -33,40 +33,46 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 }
 
-func (c *Config) Run(args *model.ModuleArgs) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+func getBrightness() float64 {
 	brightnessFile := "/sys/class/backlight/intel_backlight/brightness"
 	maxBrightnessFile := "/sys/class/backlight/intel_backlight/max_brightness"
+	var res float64
+
+	brightness, err := ioutil.ReadFile(brightnessFile)
+	if err != nil {
+		panic(err)
+	}
+
+	maxBrightness, err := ioutil.ReadFile(maxBrightnessFile)
+	if err != nil {
+		panic(err)
+	}
+
+	brightnessStr := strings.TrimSpace(string(brightness))
+	maxBrightnessStr := strings.TrimSpace(string(maxBrightness))
+
+	if val, err := strconv.Atoi(brightnessStr); err == nil {
+		res = float64(val)
+	} else {
+		panic(err)
+	}
+
+	if val, err := strconv.Atoi(maxBrightnessStr); err == nil {
+		res = (res / float64(val)) * 100
+	} else {
+		panic(err)
+	}
+
+	return res
+}
+
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	incBrightnessCmd := []string{"xbacklight", "-inc", "5"}
 	decBrightnessCmd := []string{"xbacklight", "-dec", "5"}
 	var output float64
 
 	for range time.NewTicker(c.Period).C {
-		brightness, err := ioutil.ReadFile(brightnessFile)
-		if err != nil {
-			panic(err)
-		}
-
-		maxBrightness, err := ioutil.ReadFile(maxBrightnessFile)
-		if err != nil {
-			panic(err)
-		}
-
-		brightnessStr := strings.TrimSpace(string(brightness))
-		maxBrightnessStr := strings.TrimSpace(string(maxBrightness))
-
-		if val, err := strconv.Atoi(brightnessStr); err == nil {
-			output = float64(val)
-		} else {
-			panic(err)
-		}
-
-		if val, err := strconv.Atoi(maxBrightnessStr); err == nil {
-			output = (output / float64(val)) * 100
-		} else {
-			panic(err)
-		}
-
 		go func() {
 			// TODO: Update brightness after the click event has been processes.
 			for event := range args.InCh {
@@ -79,6 +85,7 @@ func (c *Config) Run(args *model.ModuleArgs) {
 			}
 		}()
 
+		output = getBrightness()
 		outputBlock.FullText = fmt.Sprintf(c.Format, output)
 		args.OutCh <- outputBlock
 	}
