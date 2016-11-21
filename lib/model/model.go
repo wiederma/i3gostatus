@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/pelletier/go-toml"
+	"github.com/satori/go.uuid"
 	"syscall"
 	"time"
 )
@@ -68,6 +69,7 @@ type BaseConfig struct {
 
 func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
 	c.Name = name
+	c.Instance = uuid.NewV4().String()
 	c.Color = configTree.GetDefault(c.Name+".color", "").(string)
 	c.Background = configTree.GetDefault(c.Name+".background", "").(string)
 	c.Border = configTree.GetDefault(c.Name+".border", "").(string)
@@ -99,6 +101,7 @@ func NewBlock(name string, initValues BaseConfig, index int) *I3BarBlockWrapper 
 	return &I3BarBlockWrapper{
 		I3BarBlock: I3BarBlock{
 			Name:                name,
+			Instance:            initValues.Instance,
 			Color:               initValues.Color,
 			Background:          initValues.Background,
 			Border:              initValues.Border,

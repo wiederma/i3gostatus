@@ -33,7 +33,7 @@ func readStdin(outChannels map[string]chan *model.I3ClickEvent) {
 		clickEvent := &model.I3ClickEvent{}
 
 		if err := json.Unmarshal([]byte(inputStr), clickEvent); err == nil {
-			outChannels[clickEvent.Name] <- clickEvent
+			outChannels[clickEvent.Instance] <- clickEvent
 		}
 	}
 }
@@ -59,13 +59,12 @@ func Run(options *runtimeOptions) {
 
 	for i, v := range enabledModules {
 		v.ParseConfig(configTree)
-		// TODO: Convert this to instance UUIDs in order to support multiple module instances
-		name := reflect.ValueOf(v).Elem().FieldByName("Name").String()
+		id := reflect.ValueOf(v).Elem().FieldByName("Instance").String()
 		inChannel := make(chan *model.I3ClickEvent)
 		go v.Run(&model.ModuleArgs{inChannel, outChannel, clickEventChannel, i})
-		// It it to the channel map. The click_event handler must be able
+		// Add it it to the channel map. The click_event handler must be able
 		// to somehow find the correct channel.
-		inChannels[string(name)] = inChannel
+		inChannels[id] = inChannel
 	}
 
 	if options.clickEvents {
