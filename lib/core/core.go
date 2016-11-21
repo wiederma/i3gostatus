@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -21,7 +22,7 @@ func writeHeader(options *runtimeOptions) {
 	fmt.Println("[")
 }
 
-func readStdin(out chan *model.I3ClickEvent) {
+func readStdin(outChannels map[string]chan *model.I3ClickEvent) {
 	scanner := bufio.NewScanner(os.Stdin)
 	var inputStr string
 
@@ -32,7 +33,7 @@ func readStdin(out chan *model.I3ClickEvent) {
 		clickEvent := &model.I3ClickEvent{}
 
 		if err := json.Unmarshal([]byte(inputStr), clickEvent); err == nil {
-			out <- clickEvent
+			outChannels[clickEvent.Name] <- clickEvent
 		}
 	}
 }
@@ -43,11 +44,11 @@ func Run(options *runtimeOptions) {
 	rateLimit := utils.FindFastestModule(configTree)
 	rateTimer := time.NewTimer(rateLimit)
 	outChannel := make(chan *model.I3BarBlockWrapper)
+	clickEventChannel := make(chan *model.I3BarBlockWrapper)
 	outSlice := make([]*model.I3BarBlock, len(enabledModules))
-	// inChannel is only used when click_events is enabled.
-	// If click_events is disabled, it is never written to
-	// the channel.
-	inChannel := make(chan *model.I3ClickEvent)
+	// The relevant inChannel is only used when click_events is enabled.
+	// If click_events is disabled, it is never written to  the channel.
+	inChannels := make(map[string]chan *model.I3ClickEvent)
 
 	if len(enabledModules) == 0 {
 		fmt.Fprintln(os.Stderr, "No modules are enabled!")
@@ -56,13 +57,19 @@ func Run(options *runtimeOptions) {
 
 	writeHeader(options)
 
-	if options.clickEvents {
-		go readStdin(inChannel)
-	}
-
 	for i, v := range enabledModules {
 		v.ParseConfig(configTree)
-		go v.Run(outChannel, inChannel, i)
+		// TODO: Convert this to instance UUIDs in order to support multiple module instances
+		name := reflect.ValueOf(v).Elem().FieldByName("Name").String()
+		inChannel := make(chan *model.I3ClickEvent)
+		go v.Run(&model.ModuleArgs{inChannel, outChannel, clickEventChannel, i})
+		// It it to the channel map. The click_event handler must be able
+		// to somehow find the correct channel.
+		inChannels[string(name)] = inChannel
+	}
+
+	if options.clickEvents {
+		go readStdin(inChannels)
 	}
 
 	for {
