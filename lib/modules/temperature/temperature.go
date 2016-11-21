@@ -18,7 +18,7 @@ const (
 	name               = "temperature"
 	moduleName         = "i3gostatus.modules." + name
 	defaultPeriod      = 5000
-	defaultFormat      = "%s °C"
+	defaultFormat      = "%s°C"
 	defaultUrgentTemp  = 70
 	defaultUrgentColor = "#FF0000"
 )
