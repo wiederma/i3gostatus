@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rumpelsepp/i3gostatus/lib/config"
@@ -22,9 +23,15 @@ func writeHeader(options *runtimeOptions) {
 
 func readStdin(out chan *model.I3ClickEvent) {
 	scanner := bufio.NewScanner(os.Stdin)
+	var inputStr string
+
 	for scanner.Scan() {
+		// Trim the endless JSON array stuff. It causes parse errors,
+		// since we do line by line JSON parsing here.
+		inputStr = strings.Trim(scanner.Text(), "[, ")
 		clickEvent := &model.I3ClickEvent{}
-		if err := json.Unmarshal(scanner.Bytes(), clickEvent); err == nil {
+
+		if err := json.Unmarshal([]byte(inputStr), clickEvent); err == nil {
 			out <- clickEvent
 		}
 	}
