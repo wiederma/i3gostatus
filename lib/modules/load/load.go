@@ -18,7 +18,7 @@ import (
 const (
 	name               = "load"
 	moduleName         = "i3gostatus.modules." + name
-	defaultFormat      = "{{.Avg1}} {{.Avg5}} {{.Avg15}}"
+	defaultFormat      = "{{.Avg1}} {{.Avg5}}"
 	defaultUrgentColor = "#ff0000"
 )
 
