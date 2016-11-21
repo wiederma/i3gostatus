@@ -23,11 +23,11 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
 }
 
-func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEvent, index int) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 
 	for range time.NewTicker(c.Period).C {
 		outputBlock.FullText = c.Format
-		out <- outputBlock
+		args.OutCh <- outputBlock
 	}
 }

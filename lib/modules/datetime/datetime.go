@@ -35,8 +35,8 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 }
 
-func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEvent, index int) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	var strftime bool
 
 	if strings.HasPrefix(c.Format, "strftime::") {
@@ -57,6 +57,6 @@ func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEv
 		}
 
 		outputBlock.FullText = str
-		out <- outputBlock
+		args.OutCh <- outputBlock
 	}
 }

@@ -32,8 +32,8 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.Format = config.GetString(configTree, c.Name+".format", defaultFormat)
 }
 
-func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEvent, index int) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, index)
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	brightnessFile := "/sys/class/backlight/intel_backlight/brightness"
 	maxBrightnessFile := "/sys/class/backlight/intel_backlight/max_brightness"
 	var output float64
@@ -65,6 +65,6 @@ func (c *Config) Run(out chan *model.I3BarBlockWrapper, in chan *model.I3ClickEv
 		}
 
 		outputBlock.FullText = fmt.Sprintf(c.Format, output)
-		out <- outputBlock
+		args.OutCh <- outputBlock
 	}
 }

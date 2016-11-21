@@ -44,6 +44,13 @@ type I3ClickEvent struct {
 
 const DefaultPeriod = 1000
 
+type ModuleArgs struct {
+	InCh         chan *I3ClickEvent
+	OutCh        chan *I3BarBlockWrapper
+	ClickEventCh chan *I3BarBlockWrapper
+	Index        int
+}
+
 type BaseConfig struct {
 	// TODO: Duplication in NewBlock()?
 	I3BarBlock
@@ -67,7 +74,7 @@ func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
 }
 
 type Module interface {
-	Run(chan *I3BarBlockWrapper, chan *I3ClickEvent, int)
+	Run(args *ModuleArgs)
 	ParseConfig(configTree *toml.TomlTree)
 }
 
