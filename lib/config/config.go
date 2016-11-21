@@ -41,6 +41,9 @@ func GetInt(configTree *toml.TomlTree, path string, def int) int {
 	return configTree.GetDefault(path, def).(int)
 }
 
+func GetFloat64(configTree *toml.TomlTree, path string, def float64) float64 {
+	return configTree.GetDefault(path, def).(float64)
+}
 func GetDuration(configTree *toml.TomlTree, path string, def int) time.Duration {
 	return time.Duration(configTree.GetDefault(path, int64(def)).(int64))
 }
