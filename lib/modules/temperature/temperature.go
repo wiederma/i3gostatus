@@ -38,11 +38,12 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	thermalFile := "/sys/class/thermal/thermal_zone0/temp"
 	var temperatureStr string
 
 	for range time.NewTicker(c.Period).C {
+		outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+
 		if data, err := ioutil.ReadFile(thermalFile); err == nil {
 			temperatureStr = strings.TrimSuffix(strings.TrimSpace(string(data)), "000")
 		} else {
