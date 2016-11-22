@@ -43,7 +43,7 @@ func getSpace(path string) *space {
 	var stat syscall.Statfs_t
 	syscall.Statfs(path, &stat)
 	avail := utils.HumanReadableByteCount(stat.Bavail * uint64(stat.Bsize))
-	used := utils.HumanReadableByteCount((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))
+	used := utils.HumanReadableByteCount((stat.Blocks - stat.Bavail) * uint64(stat.Bsize))
 	total := utils.HumanReadableByteCount(stat.Blocks * uint64(stat.Bsize))
 
 	return &space{avail, used, total}
