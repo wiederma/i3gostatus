@@ -52,7 +52,7 @@ func getSpace(path string) *space {
 func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	var outStr string
-	t := template.Must(template.New("load").Parse(c.Format))
+	t := template.Must(template.New("disk").Parse(c.Format))
 
 	for range time.NewTicker(c.Period).C {
 		buf := bytes.NewBufferString(outStr)
