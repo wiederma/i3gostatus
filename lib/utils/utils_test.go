@@ -34,3 +34,18 @@ func TestFindFastestModule(t *testing.T) {
 		t.Errorf("Expected %s, got %s", expected, res)
 	}
 }
+
+func TestWhich(t *testing.T) {
+	if cmd, err := Which("ls"); err == nil {
+		t.Logf("cmd %s found", cmd)
+	} else {
+		t.Log("ls is not available?")
+		t.Errorf("failed with error: %s", err)
+	}
+
+	if _, err := Which("kalsdfjlsajf"); err == nil {
+		t.Errorf("Found non existing command!")
+	} else {
+		t.Logf("correctly reported error: %s", err)
+	}
+}

@@ -14,6 +14,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
 const (
@@ -68,8 +69,13 @@ func getBrightness() float64 {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
-	incBrightnessCmd := []string{"xbacklight", "-inc", "5"}
-	decBrightnessCmd := []string{"xbacklight", "-dec", "5"}
+	cmd, err := utils.Which("xbacklight")
+	if err != nil {
+		panic(err)
+	}
+
+	incBrightnessCmd := []string{cmd, "-inc", "5"}
+	decBrightnessCmd := []string{cmd, "-dec", "5"}
 	var output float64
 
 	go func() {

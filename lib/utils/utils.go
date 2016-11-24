@@ -2,10 +2,14 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -52,4 +56,30 @@ func HumanReadableByteCount(x uint64) string {
 	unit := string(prefixes[int(exp)-1])
 
 	return fmt.Sprintf("%.0f %siB", a/math.Pow(base, exp), unit)
+}
+
+func Which(cmd string) (string, error) {
+	path := os.Getenv("PATH")
+	dirs := strings.Split(path, ":")
+
+	for _, dir := range dirs {
+		fd, err := os.Open(dir)
+		if err != nil {
+			panic(err)
+		}
+		defer fd.Close()
+
+		items, err := fd.Readdirnames(0)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, item := range items {
+			if strings.Compare(item, cmd) == 0 {
+				return filepath.Join(dir, item), nil
+			}
+		}
+	}
+
+	return "", errors.New("CMD not in $PATH")
 }
