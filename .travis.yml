@@ -11,5 +11,8 @@ install:
 before_script:
   - govendor sync
 
+script:
+  - bash ./test.sh
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
