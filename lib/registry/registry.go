@@ -5,6 +5,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/backlight"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/cpu"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/disk"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/load"
@@ -19,6 +20,7 @@ func init() {
 
 	// Add all available modules here!
 	availableModules["backlight"] = &backlight.Config{}
+	availableModules["cpu"] = &cpu.Config{}
 	availableModules["datetime"] = &datetime.Config{}
 	availableModules["load"] = &load.Config{}
 	availableModules["disk"] = &disk.Config{}
