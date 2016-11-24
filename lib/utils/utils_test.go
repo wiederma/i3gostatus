@@ -42,6 +42,13 @@ func TestHumanReadableByteCount(t *testing.T) {
 	if strings.Compare(res, expected) != 0 {
 		t.Errorf("Fail; expected: %s", expected)
 	}
+
+	expected = "500 B"
+	res = HumanReadableByteCount(uint64(500))
+	if strings.Compare(res, expected) != 0 {
+		t.Logf("Wrong result: %s", res)
+		t.Errorf("Expected: %s", expected)
+	}
 }
 
 func TestWhich(t *testing.T) {

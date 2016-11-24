@@ -48,7 +48,7 @@ func HumanReadableByteCount(x uint64) string {
 	a := float64(x)
 
 	if a < base {
-		return fmt.Sprintf("%f B", a)
+		return fmt.Sprintf("%.0f B", a)
 	}
 
 	// https://en.wikipedia.org/wiki/Binary_prefix
