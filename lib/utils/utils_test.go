@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"strings"
 	"testing"
 	"time"
 )
@@ -32,6 +33,14 @@ func TestFindFastestModule(t *testing.T) {
 
 	if res := FindFastestModule(configTree); res != expected {
 		t.Errorf("Expected %s, got %s", expected, res)
+	}
+}
+
+func TestHumanReadableByteCount(t *testing.T) {
+	expected := "408 GiB"
+	res := HumanReadableByteCount(uint64(437875942755))
+	if strings.Compare(res, expected) != 0 {
+		t.Errorf("Fail; expected: %s", expected)
 	}
 }
 
