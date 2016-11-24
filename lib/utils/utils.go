@@ -60,12 +60,19 @@ func HumanReadableByteCount(x uint64) string {
 
 func Which(cmd string) (string, error) {
 	path := os.Getenv("PATH")
+	if path == "" {
+		return "", errors.New("$PATH is not set")
+	}
 	dirs := strings.Split(path, ":")
 
 	for _, dir := range dirs {
 		fd, err := os.Open(dir)
 		if err != nil {
-			panic(err)
+			if os.IsNotExist(err) {
+				continue
+			} else {
+				panic(err)
+			}
 		}
 		defer fd.Close()
 
