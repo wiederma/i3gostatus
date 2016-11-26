@@ -31,3 +31,4 @@ vendor/
 !vendor/vendor.json
 
 /coverage.txt
+/i3gostatus
