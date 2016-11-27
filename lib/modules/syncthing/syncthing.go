@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	name       = "static"
+	name       = "syncthing"
 	moduleName = "i3gostatus.modules." + name
 )
 
