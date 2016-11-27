@@ -35,6 +35,9 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
+	logger.Println("Started Syncthing module")
+	logger.Printf("Configuration: %s", c)
+
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	stUp := false
 	initHTTPSession(c.STUrl)
@@ -42,12 +45,16 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	go func() {
 		xdgOpen, err := utils.Which("xdg-open")
 		if err != nil {
+			logger.Printf("Error occured: %s\n", err)
+			logger.Println("Terminating click handler...")
 			return
 		}
 
 		// TODO: Make this configurable; DO NOT depend on systemd by design!!
 		systemctl, err := utils.Which("systemctl")
 		if err != nil {
+			logger.Printf("Error occured: %s\n", err)
+			logger.Println("Terminating click handler...")
 			return
 		}
 		for event := range args.InCh {
@@ -76,6 +83,8 @@ func (c *Config) Run(args *model.ModuleArgs) {
 				stUp = false
 			}
 		} else if _, ok := err.(noActiveSessionError); ok {
+			logger.Printf("Warning: %s", err)
+			logger.Println("Renewing http session...")
 			initHTTPSession(c.STUrl)
 			continue
 		} else {
