@@ -1,11 +1,13 @@
 package syncthing
 
 import (
+	"os/exec"
 	"time"
 
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
 const (
@@ -36,6 +38,37 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	stUp := false
 	initHTTPSession(c.STUrl)
+
+	go func() {
+		// TODO: Make a wrapper method for this. It is duplicated in several modules.
+		xdgOpen, err := utils.Which("xdg-open")
+		if err != nil {
+			switch err.(type) {
+			case utils.CommandNotAvailError:
+				// TODO: Log a warning here (once the logging system is there...)
+				return
+			default:
+				panic(err)
+			}
+		}
+
+		// TODO: Make this configurable; DO NOT depend on systemd by design!!
+		systemctl, err := utils.Which("systemctl")
+		for event := range args.InCh {
+			switch event.Button {
+			case model.MouseButtonLeft:
+				exec.Command(xdgOpen, c.STUrl).CombinedOutput()
+			case model.MouseButtonRight:
+				if stUp {
+					exec.Command(systemctl, "--user", "stop", "syncthing.service").CombinedOutput()
+				} else {
+					exec.Command(systemctl, "--user", "start", "syncthing.service").CombinedOutput()
+				}
+			default:
+				continue
+			}
+		}
+	}()
 
 	for range time.NewTicker(c.Period).C {
 		if resp, err := stGet(c.STUrl, "/rest/system/ping"); err == nil {
