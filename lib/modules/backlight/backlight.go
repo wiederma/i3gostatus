@@ -67,8 +67,8 @@ func getBrightness() float64 {
 	return res
 }
 
-func (c *Config) Run(args *model.ModuleArgs) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+func clickHandler(args *model.ModuleArgs) {
+	// TODO: Update brightness after the click event has been processes.
 	cmd, err := utils.Which("xbacklight")
 	if err != nil {
 		panic(err)
@@ -76,21 +76,24 @@ func (c *Config) Run(args *model.ModuleArgs) {
 
 	incBrightnessCmd := []string{cmd, "-inc", "5"}
 	decBrightnessCmd := []string{cmd, "-dec", "5"}
+
+	for event := range args.InCh {
+		switch event.Button {
+		case model.MouseButtonLeft, model.MouseWheelUp:
+			exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
+		case model.MouseButtonRight, model.MouseWheelDown:
+			exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
+		default:
+			continue
+		}
+	}
+}
+
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	var output float64
 
-	go func() {
-		// TODO: Update brightness after the click event has been processes.
-		for event := range args.InCh {
-			switch event.Button {
-			case model.MouseButtonLeft, model.MouseWheelUp:
-				exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
-			case model.MouseButtonRight, model.MouseWheelDown:
-				exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
-			default:
-				continue
-			}
-		}
-	}()
+	go clickHandler(args)
 
 	for range time.NewTicker(c.Period).C {
 		output = getBrightness()
