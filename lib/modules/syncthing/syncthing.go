@@ -33,9 +33,9 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
-	initHTTPSession(c.STUrl)
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	stUp := false
+	initHTTPSession(c.STUrl)
 
 	for range time.NewTicker(c.Period).C {
 		if resp, err := stGet(c.STUrl, "/rest/system/ping"); err == nil {
