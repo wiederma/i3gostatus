@@ -40,20 +40,16 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	initHTTPSession(c.STUrl)
 
 	go func() {
-		// TODO: Make a wrapper method for this. It is duplicated in several modules.
 		xdgOpen, err := utils.Which("xdg-open")
 		if err != nil {
-			switch err.(type) {
-			case utils.CommandNotAvailError:
-				// TODO: Log a warning here (once the logging system is there...)
-				return
-			default:
-				panic(err)
-			}
+			return
 		}
 
 		// TODO: Make this configurable; DO NOT depend on systemd by design!!
 		systemctl, err := utils.Which("systemctl")
+		if err != nil {
+			return
+		}
 		for event := range args.InCh {
 			switch event.Button {
 			case model.MouseButtonLeft:
