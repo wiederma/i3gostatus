@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/pelletier/go-toml"
-	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
 func Json(data interface{}) string {
