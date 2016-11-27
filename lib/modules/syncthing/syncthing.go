@@ -36,7 +36,7 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	logger.Println("Started Syncthing module")
-	logger.Printf("Configuration: %s", c)
+	logger.Printf("Configuration: %s\n", c)
 
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	stUp := false
