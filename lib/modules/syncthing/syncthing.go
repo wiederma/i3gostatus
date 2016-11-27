@@ -46,7 +46,7 @@ func (c *Config) Run(args *model.ModuleArgs) {
 			} else {
 				stUp = false
 			}
-		} else if _, ok := err.(NoActiveSessionError); ok {
+		} else if _, ok := err.(noActiveSessionError); ok {
 			initHTTPSession(c.STUrl)
 			continue
 		} else {

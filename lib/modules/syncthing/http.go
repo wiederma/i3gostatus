@@ -12,9 +12,9 @@ import (
 var csrfName string
 var csrfToken string
 
-type NoActiveSessionError string
+type noActiveSessionError string
 
-func (e NoActiveSessionError) Error() string {
+func (e noActiveSessionError) Error() string {
 	return fmt.Sprintf("No active session for: %s", e)
 }
 
@@ -46,7 +46,7 @@ func stGet(baseUrl string, endpoint string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 403 {
-		return "", NoActiveSessionError(reqUrl.String())
+		return "", noActiveSessionError(reqUrl.String())
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
