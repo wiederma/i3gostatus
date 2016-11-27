@@ -40,6 +40,7 @@ func TestHumanReadableByteCount(t *testing.T) {
 	expected := "408 GiB"
 	res := HumanReadableByteCount(uint64(437875942755))
 	if strings.Compare(res, expected) != 0 {
+		t.Logf("Wrong result: %s", res)
 		t.Errorf("Fail; expected: %s", expected)
 	}
 

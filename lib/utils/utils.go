@@ -45,7 +45,7 @@ func FindFastestModule(configTree *toml.TomlTree) time.Duration {
 
 func HumanReadableByteCount(x uint64) string {
 	base := float64(1024)
-	prefixes := []rune("kMGTPE")
+	units := []string{"kiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
 	a := float64(x)
 
 	if a < base {
@@ -54,9 +54,8 @@ func HumanReadableByteCount(x uint64) string {
 
 	// https://en.wikipedia.org/wiki/Binary_prefix
 	exp := math.Floor(math.Log2(a) / math.Log2(base))
-	unit := string(prefixes[int(exp)-1])
 
-	return fmt.Sprintf("%.0f %siB", a/math.Pow(base, exp), unit)
+	return fmt.Sprintf("%.0f %s", a/math.Pow(base, exp), units[int(exp)-1])
 }
 
 type CommandNotAvailError string
