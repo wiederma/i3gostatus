@@ -64,7 +64,7 @@ func Which(cmd string) (string, error) {
 	if path == "" {
 		return "", errors.New("$PATH is not set")
 	}
-	dirs := strings.Split(path, ":")
+	dirs := filepath.SplitList(path)
 
 	for _, dir := range dirs {
 		fd, err := os.Open(dir)
