@@ -62,6 +62,10 @@ func TestWhich(t *testing.T) {
 	if _, err := Which("kalsdfjlsajf"); err == nil {
 		t.Errorf("Found non existing command!")
 	} else {
-		t.Logf("correctly reported error: %s", err)
+		if _, ok := err.(CommandNotAvailError); ok {
+			t.Logf("correctly reported error: %s", err)
+		} else {
+			t.Errorf("Wrong error: %s", err)
+		}
 	}
 }

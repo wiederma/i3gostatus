@@ -59,6 +59,12 @@ func HumanReadableByteCount(x uint64) string {
 	return fmt.Sprintf("%.0f %siB", a/math.Pow(base, exp), unit)
 }
 
+type CommandNotAvailError string
+
+func (e CommandNotAvailError) Error() string {
+	return fmt.Sprintf("%s is not available in $PATH", string(e))
+}
+
 func Which(cmd string) (string, error) {
 	path := os.Getenv("PATH")
 	if path == "" {
@@ -89,5 +95,5 @@ func Which(cmd string) (string, error) {
 		}
 	}
 
-	return "", errors.New("CMD not in $PATH")
+	return "", CommandNotAvailError(cmd)
 }

@@ -71,7 +71,13 @@ func clickHandler(args *model.ModuleArgs) {
 	// TODO: Update brightness after the click event has been processes.
 	cmd, err := utils.Which("xbacklight")
 	if err != nil {
-		panic(err)
+		switch err.(type) {
+		case utils.CommandNotAvailError:
+			// TODO: Log a warning here (once the logging system is there...)
+			return
+		default:
+			panic(err)
+		}
 	}
 
 	incBrightnessCmd := []string{cmd, "-inc", "5"}
