@@ -74,6 +74,10 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	}()
 
 	for range time.NewTicker(c.Period).C {
+		if csrfToken == "" {
+			initHTTPSession(c.STUrl)
+		}
+
 		if resp, err := stGet(c.STUrl, "/rest/system/ping"); err == nil {
 			// I do not feel motivated to parse JSON now...
 			// This should suffice in most cases.
