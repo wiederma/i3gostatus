@@ -9,7 +9,9 @@ import (
 )
 
 func Path() string {
-	// TODO: Support xdg env variables!
+	if xdgHome := os.Getenv("XDG_CONFIG_HOME"); xdgHome != "" {
+		return xdgHome + "/i3gostatus/config.toml"
+	}
 	return os.Getenv("HOME") + "/.config/i3gostatus/config.toml"
 }
 
