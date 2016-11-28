@@ -1,10 +1,11 @@
 package model
 
 import (
-	"github.com/pelletier/go-toml"
-	"github.com/satori/go.uuid"
 	"syscall"
 	"time"
+
+	"github.com/pelletier/go-toml"
+	"github.com/satori/go.uuid"
 )
 
 type I3BarHeader struct {

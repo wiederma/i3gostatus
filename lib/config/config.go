@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/pelletier/go-toml"
 	"os"
 	"time"
+
+	"github.com/pelletier/go-toml"
 )
 
 func Path() string {
