@@ -21,7 +21,8 @@ func (e noActiveSessionError) Error() string {
 func initHTTPSession(url string) {
 	resp, err := http.Get(url)
 	if err != nil {
-		panic(err)
+		logger.Println("initHTTPSession failed. Is Syncthing running?")
+		return
 	}
 	defer resp.Body.Close()
 
