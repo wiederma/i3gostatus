@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -14,6 +15,12 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/registry"
 	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
+
+var logger *log.Logger
+
+func init() {
+	logger = log.New(os.Stderr, "i3gostatus ", log.LstdFlags)
+}
 
 func writeHeader(options *runtimeOptions) {
 	header := model.NewHeader(options.clickEvents)
@@ -49,6 +56,8 @@ func Run(options *runtimeOptions) {
 	// The relevant inChannel is only used when click_events is enabled.
 	// If click_events is disabled, it is never written to  the channel.
 	inChannels := make(map[string]chan *model.I3ClickEvent)
+
+	logger.Printf("Runtime options set: %+v", options)
 
 	if len(enabledModules) == 0 {
 		fmt.Fprintln(os.Stderr, "No modules are enabled!")
