@@ -2,11 +2,18 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/pelletier/go-toml"
 )
+
+var logger *log.Logger
+
+func init() {
+	logger = log.New(os.Stderr, "config ", log.LstdFlags)
+}
 
 func Path() string {
 	var configPath string

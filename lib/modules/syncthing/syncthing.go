@@ -1,6 +1,8 @@
 package syncthing
 
 import (
+	"log"
+	"os"
 	"os/exec"
 	"time"
 
@@ -22,6 +24,12 @@ type Config struct {
 	UpColor    string
 	DownString string
 	DownColor  string
+}
+
+var logger *log.Logger
+
+func init() {
+	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
