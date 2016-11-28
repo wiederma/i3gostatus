@@ -9,10 +9,17 @@ import (
 )
 
 func Path() string {
+	var configPath string
+
 	if xdgHome := os.Getenv("XDG_CONFIG_HOME"); xdgHome != "" {
-		return xdgHome + "/i3gostatus/config.toml"
+		configPath = xdgHome + "/i3gostatus/config.toml"
+	} else {
+		configPath = os.Getenv("HOME") + "/.config/i3gostatus/config.toml"
 	}
-	return os.Getenv("HOME") + "/.config/i3gostatus/config.toml"
+
+	logger.Printf("Using config file: %s", configPath)
+
+	return configPath
 }
 
 func Load(path string) *toml.TomlTree {
@@ -21,8 +28,8 @@ func Load(path string) *toml.TomlTree {
 
 	configTree, err = toml.LoadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, "Using default config...")
+		logger.Println(err)
+		logger.Println("Using default config...")
 
 		defaultConfig := `modules = ["datetime"]`
 		configTree, err = toml.Load(defaultConfig)
