@@ -30,7 +30,7 @@ type Config struct {
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
-	c.BaseConfig.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
+	c.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 }
 

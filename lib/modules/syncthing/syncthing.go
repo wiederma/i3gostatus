@@ -26,7 +26,7 @@ type Config struct {
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
-	c.BaseConfig.Period = config.GetDurationMs(configTree, c.Name+".period", 10000)
+	c.Period = config.GetDurationMs(configTree, c.Name+".period", 10000)
 	c.STUrl = config.GetString(configTree, name+".st_url", "http://localhost:8384")
 	c.UpString = config.GetString(configTree, name+".up_string", "ST UP")
 	c.DownString = config.GetString(configTree, name+".down_string", "ST DOWN")
