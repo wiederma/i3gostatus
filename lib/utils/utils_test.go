@@ -1,11 +1,12 @@
 package utils
 
 import (
-	"github.com/pelletier/go-toml"
-	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
 func TestJson(t *testing.T) {
@@ -53,14 +54,15 @@ func TestHumanReadableByteCount(t *testing.T) {
 }
 
 func TestWhich(t *testing.T) {
-	if cmd, err := Which("ls"); err == nil {
+	// Test "low level" implementation
+	if cmd, err := which("ls"); err == nil {
 		t.Logf("cmd %s found", cmd)
 	} else {
 		t.Log("ls is not available?")
 		t.Errorf("failed with error: %s", err)
 	}
 
-	if _, err := Which("kalsdfjlsajf"); err == nil {
+	if _, err := which("kalsdfjlsajf"); err == nil {
 		t.Errorf("Found non existing command!")
 	} else {
 		if _, ok := err.(CommandNotAvailError); ok {
@@ -68,5 +70,16 @@ func TestWhich(t *testing.T) {
 		} else {
 			t.Errorf("Wrong error: %s", err)
 		}
+	}
+
+	// Test wrapper function
+	if cmd := Which("ls"); cmd != "" {
+		t.Logf("cmd %s found", cmd)
+	} else {
+		t.Error("ls is not available?")
+	}
+
+	if cmd := Which("kalsdfjlsajf"); cmd != "" {
+		t.Errorf("Found non existing command!")
 	}
 }
