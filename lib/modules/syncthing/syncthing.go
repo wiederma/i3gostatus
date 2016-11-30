@@ -17,6 +17,12 @@ const (
 	moduleName = "i3gostatus.modules." + name
 )
 
+var logger *log.Logger
+
+func init() {
+	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+}
+
 type Config struct {
 	model.BaseConfig
 	STUrl      string
@@ -26,10 +32,24 @@ type Config struct {
 	DownColor  string
 }
 
-var logger *log.Logger
+func startSyncthing() {
+	systemctl := utils.Which("systemctl")
+	if systemctl == "" {
+		logger.Println("systemctl is not available")
+		return
+	}
 
-func init() {
-	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+	exec.Command(systemctl, "--user", "start", "syncthing.service").CombinedOutput()
+}
+
+func stopSyncthing() {
+	systemctl := utils.Which("systemctl")
+	if systemctl == "" {
+		logger.Println("systemctl is not available")
+		return
+	}
+
+	exec.Command(systemctl, "--user", "stop", "syncthing.service").CombinedOutput()
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
@@ -50,30 +70,24 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	stUp := false
 	initHTTPSession(c.STUrl)
 
+	// Click handler
 	go func() {
-		xdgOpen, err := utils.Which("xdg-open")
-		if err != nil {
-			logger.Printf("Error occured: %s\n", err)
-			logger.Println("Terminating click handler...")
+		// TODO: Move a wrapper for xdg-open to utils.
+		xdgOpen := utils.Which("xdg-open")
+		if xdgOpen == "" {
+			logger.Println("xdg-open is not available; terminating click handler.")
 			return
 		}
 
-		// TODO: Make this configurable; DO NOT depend on systemd by design!!
-		systemctl, err := utils.Which("systemctl")
-		if err != nil {
-			logger.Printf("Error occured: %s\n", err)
-			logger.Println("Terminating click handler...")
-			return
-		}
 		for event := range args.InCh {
 			switch event.Button {
 			case model.MouseButtonLeft:
 				exec.Command(xdgOpen, c.STUrl).CombinedOutput()
 			case model.MouseButtonRight:
 				if stUp {
-					exec.Command(systemctl, "--user", "stop", "syncthing.service").CombinedOutput()
+					stopSyncthing()
 				} else {
-					exec.Command(systemctl, "--user", "start", "syncthing.service").CombinedOutput()
+					startSyncthing()
 				}
 			default:
 				continue
