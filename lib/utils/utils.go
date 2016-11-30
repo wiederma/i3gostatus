@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -13,6 +14,12 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
+
+var logger *log.Logger
+
+func init() {
+	logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
+}
 
 func Json(data interface{}) string {
 	json, err := json.Marshal(data)
