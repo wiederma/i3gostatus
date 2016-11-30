@@ -13,7 +13,7 @@ type runtimeOptions struct {
 func ParseOptions() *runtimeOptions {
 	options := &runtimeOptions{}
 	flag.StringVar(&options.configPath, "config", config.Path(), "Set config path")
-	flag.BoolVar(&options.clickEvents, "click-events", false, "Enable click events [experimental]")
+	flag.BoolVar(&options.clickEvents, "no-click-events", true, "Disable click events")
 	flag.Parse()
 	return options
 }
