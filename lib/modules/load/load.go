@@ -66,10 +66,11 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	var outStr string
+	var outputBlock *model.I3BarBlockWrapper
 	t := template.Must(template.New("load").Parse(c.Format))
 
 	for range time.NewTicker(c.Period).C {
-		outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+		outputBlock = model.NewBlock(moduleName, c.BaseConfig, args.Index)
 		buf := bytes.NewBufferString(outStr)
 		load := getLoad()
 
