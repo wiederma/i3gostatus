@@ -68,3 +68,18 @@ func GetDuration(configTree *toml.TomlTree, path string, def int) time.Duration 
 func GetDurationMs(configTree *toml.TomlTree, path string, def int) time.Duration {
 	return time.Duration(configTree.GetDefault(path, int64(def)).(int64)) * time.Millisecond
 }
+
+func GetStringList(configTree *toml.TomlTree, path string, def []string) []string {
+	rawList := configTree.GetDefault(path, nil).([]interface{})
+	if rawList == nil {
+		return def
+	}
+
+	res := make([]string, len(rawList))
+
+	for i, val := range rawList {
+		res[i] = val.(string)
+	}
+
+	return res
+}
