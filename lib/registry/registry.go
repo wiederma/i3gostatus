@@ -3,6 +3,7 @@ package registry
 // Every single module package must be imported and added to the registry!
 import (
 	"github.com/pelletier/go-toml"
+	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/backlight"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/cpu"
@@ -33,14 +34,12 @@ func init() {
 }
 
 func Initialize(configTree *toml.TomlTree) []model.Module {
-	configuredModules := configTree.Get("modules").([]interface{})
-	enabledModules := make([]model.Module, 0, len(configuredModules))
+	configuredModules := config.GetStringList(configTree, "modules", []string{})
+	enabledModules := make([]model.Module, len(configuredModules))
 
-	for _, module := range configuredModules {
-		moduleStr := module.(string)
-
-		if val, ok := availableModules[moduleStr]; ok {
-			enabledModules = append(enabledModules, val)
+	for i, module := range configuredModules {
+		if val, ok := availableModules[module]; ok {
+			enabledModules[i] = val
 		}
 	}
 
