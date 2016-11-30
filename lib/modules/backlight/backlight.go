@@ -1,11 +1,11 @@
 // Package backlight outputs the current backlight brightness in percent by
-// reading the relevant files in `/sys/class/backlight/`. Since I only have an
-// intel GPU, there is only Intel support right now.
+// spawning `xbacklight` processes and parsing its output.
 package backlight
 
 import (
 	"fmt"
-	"io/ioutil"
+	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -28,6 +28,14 @@ type Config struct {
 	model.BaseConfig
 }
 
+var logger *log.Logger
+var xbacklight string
+
+func init() {
+	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+	xbacklight = utils.Which("xbacklight")
+}
+
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
 	c.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
@@ -35,75 +43,68 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 func getBrightness() float64 {
-	brightnessFile := "/sys/class/backlight/intel_backlight/brightness"
-	maxBrightnessFile := "/sys/class/backlight/intel_backlight/max_brightness"
-	var res float64
-
-	brightness, err := ioutil.ReadFile(brightnessFile)
-	if err != nil {
-		panic(err)
-	}
-
-	maxBrightness, err := ioutil.ReadFile(maxBrightnessFile)
-	if err != nil {
-		panic(err)
-	}
-
-	brightnessStr := strings.TrimSpace(string(brightness))
-	maxBrightnessStr := strings.TrimSpace(string(maxBrightness))
-
-	if val, err := strconv.Atoi(brightnessStr); err == nil {
-		res = float64(val)
-	} else {
-		panic(err)
-	}
-
-	if val, err := strconv.Atoi(maxBrightnessStr); err == nil {
-		res = (res / float64(val)) * 100
-	} else {
-		panic(err)
-	}
+	brightness, _ := exec.Command(xbacklight, "-get").Output()
+	res, _ := strconv.ParseFloat(strings.TrimSpace(string(brightness)), 64)
 
 	return res
 }
 
-func clickHandler(args *model.ModuleArgs) {
-	// TODO: Update brightness after the click event has been processes.
-	cmd, err := utils.Which("xbacklight")
+func setBrightness(val int) {
+	err := exec.Command(xbacklight, "set", strconv.Itoa(val)).Run()
 	if err != nil {
-		switch err.(type) {
-		case utils.CommandNotAvailError:
-			// TODO: Log a warning here (once the logging system is there...)
-			return
-		default:
-			panic(err)
-		}
+		logger.Printf("Command failed: %s\n", err)
 	}
+}
 
-	incBrightnessCmd := []string{cmd, "-inc", "5"}
-	decBrightnessCmd := []string{cmd, "-dec", "5"}
+func incBrightness(val int) {
+	err := exec.Command(xbacklight, "-inc", strconv.Itoa(val)).Run()
+	if err != nil {
+		logger.Printf("Command failed: %s\n", err)
+	}
+}
 
-	for event := range args.InCh {
-		switch event.Button {
-		case model.MouseButtonLeft, model.MouseWheelUp:
-			exec.Command(incBrightnessCmd[0], incBrightnessCmd[1:]...).Run()
-		case model.MouseButtonRight, model.MouseWheelDown:
-			exec.Command(decBrightnessCmd[0], decBrightnessCmd[1:]...).Run()
-		default:
-			continue
-		}
+func decBrightness(val int) {
+	err := exec.Command(xbacklight, "-dec", strconv.Itoa(val)).Run()
+	if err != nil {
+		logger.Printf("Command failed: %s\n", err)
 	}
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
-	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
-	var output float64
+	if xbacklight == "" {
+		logger.Println("xbacklight is not available. Terminating backlight module.")
+		return
+	}
 
-	go clickHandler(args)
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+
+	// Click handler as a closure. We need to access some variables and
+	// I am too lazy to create some function with arguments and so on...
+	go func() {
+		for event := range args.InCh {
+			switch event.Button {
+			case model.MouseButtonLeft, model.MouseWheelUp:
+				incBrightness(5)
+				outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
+				args.ClickEventCh <- outputBlock
+			case model.MouseButtonRight, model.MouseWheelDown:
+				// Set hard limit. Otherwise the display could be blacked out
+				// completetly when using the mouse wheel. This is annoying.
+				if b := getBrightness(); b <= 10 {
+					setBrightness(10)
+				} else {
+					decBrightness(5)
+					outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
+					args.ClickEventCh <- outputBlock
+				}
+			default:
+				continue
+			}
+		}
+	}()
 
 	for range time.NewTicker(c.Period).C {
-		output = getBrightness()
-		outputBlock.FullText = fmt.Sprintf(c.Format, output)
+		outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
 		args.OutCh <- outputBlock
 	}
 }
