@@ -25,7 +25,7 @@ var logger *log.Logger
 var setxkbmap string
 
 func init() {
-	logger = log.New(os.Stderr, "config ", log.LstdFlags)
+	logger = log.New(os.Stderr, "[xkblayout] ", log.LstdFlags)
 }
 
 type Config struct {
