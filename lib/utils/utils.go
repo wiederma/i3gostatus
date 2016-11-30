@@ -71,7 +71,7 @@ func (e CommandNotAvailError) Error() string {
 	return fmt.Sprintf("%s is not available in $PATH", string(e))
 }
 
-func Which(cmd string) (string, error) {
+func which(cmd string) (string, error) {
 	path := os.Getenv("PATH")
 	if path == "" {
 		return "", errors.New("$PATH is not set")
@@ -102,4 +102,13 @@ func Which(cmd string) (string, error) {
 	}
 
 	return "", CommandNotAvailError(cmd)
+}
+
+func Which(cmd string) string {
+	res, err := which(cmd)
+	if _, ok := err.(CommandNotAvailError); ok {
+		logger.Println(err)
+		return ""
+	}
+	return res
 }
