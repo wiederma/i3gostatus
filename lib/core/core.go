@@ -19,7 +19,7 @@ import (
 var logger *log.Logger
 
 func init() {
-	logger = log.New(os.Stderr, "i3gostatus ", log.LstdFlags)
+	logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
 }
 
 func writeHeader(options *runtimeOptions) {

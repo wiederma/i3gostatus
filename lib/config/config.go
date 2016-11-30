@@ -12,7 +12,7 @@ import (
 var logger *log.Logger
 
 func init() {
-	logger = log.New(os.Stderr, "config ", log.LstdFlags)
+	logger = log.New(os.Stderr, "[config] ", log.LstdFlags)
 }
 
 func Path() string {
