@@ -12,6 +12,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/modules/static"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/syncthing"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/temperature"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/xkblayout"
 )
 
 var availableModules map[string]model.Module
@@ -28,6 +29,7 @@ func init() {
 	availableModules["static"] = &static.Config{}
 	availableModules["syncthing"] = &syncthing.Config{}
 	availableModules["temperature"] = &temperature.Config{}
+	availableModules["xkblayout"] = &xkblayout.Config{}
 }
 
 func Initialize(configTree *toml.TomlTree) []model.Module {
