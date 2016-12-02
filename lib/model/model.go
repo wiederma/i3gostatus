@@ -45,11 +45,12 @@ type I3ClickEvent struct {
 }
 
 const (
-	MouseButtonLeft   = 1
-	MouseButtonMiddle = 2
-	MouseButtonRight  = 3
-	MouseWheelUp      = 4
-	MouseWheelDown    = 5
+	_               = iota
+	MouseButtonLeft = iota
+	MouseButtonMiddle
+	MouseButtonRight
+	MouseWheelUp
+	MouseWheelDown
 )
 
 const DefaultPeriod = 1000
