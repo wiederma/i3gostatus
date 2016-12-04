@@ -10,6 +10,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/disk"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/load"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/pulseaudio"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/static"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/syncthing"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/temperature"
@@ -27,6 +28,7 @@ func init() {
 	availableModules["datetime"] = &datetime.Config{}
 	availableModules["load"] = &load.Config{}
 	availableModules["disk"] = &disk.Config{}
+	availableModules["pulseaudio"] = &pulseaudio.Config{}
 	availableModules["static"] = &static.Config{}
 	availableModules["syncthing"] = &syncthing.Config{}
 	availableModules["temperature"] = &temperature.Config{}
