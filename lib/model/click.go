@@ -8,7 +8,7 @@ type ClickHandlers struct {
 	HandleWheelDown   func(*ModuleArgs, *I3BarBlockWrapper, interface{})
 }
 
-func (handlers *ClickHandlers) NewListener(args *ModuleArgs, block *I3BarBlockWrapper, data ...interface{}) {
+func (handlers *ClickHandlers) NewListener(args *ModuleArgs, block *I3BarBlockWrapper, data interface{}) {
 	for event := range args.InCh {
 		switch event.Button {
 		case MouseButtonLeft:
