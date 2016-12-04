@@ -86,8 +86,8 @@ func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
 }
 
 type Module interface {
-	Run(args *ModuleArgs)
-	ParseConfig(configTree *toml.TomlTree)
+	Run(*ModuleArgs)
+	ParseConfig(*toml.TomlTree)
 }
 
 func NewHeader(click_events bool) *I3BarHeader {
