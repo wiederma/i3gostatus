@@ -1,0 +1,26 @@
+package syncthing
+
+import (
+	"github.com/rumpelsepp/i3gostatus/lib/model"
+	"os/exec"
+)
+
+var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
+	HandleRightClick: onRightClick,
+	HandleLeftClick:  onLeftClick,
+}
+
+func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+	config := data.(*Config)
+
+	if isUp(config.STUrl) {
+		stopSyncthing()
+	} else {
+		startSyncthing()
+	}
+}
+
+func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+	config := data.(*Config)
+	exec.Command(xdgOpen, config.STUrl).Run()
+}

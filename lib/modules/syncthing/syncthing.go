@@ -17,11 +17,8 @@ const (
 	moduleName = "i3gostatus.modules." + name
 )
 
-var logger *log.Logger
-
-func init() {
-	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
-}
+var logger *log.Logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+var xdgOpen string = utils.Which("xdg-open")
 
 type Config struct {
 	model.BaseConfig
@@ -52,6 +49,33 @@ func stopSyncthing() {
 	exec.Command(systemctl, "--user", "stop", "syncthing.service").CombinedOutput()
 }
 
+func isUp(url string) bool {
+	var up bool
+
+	if csrfToken == "" {
+		initHTTPSession(url)
+	}
+
+	if resp, err := stGet(url, "/rest/system/ping"); err == nil {
+		// I do not feel motivated to parse JSON now...
+		// This should suffice in most cases.
+		if resp == `{"ping":"pong"}` {
+			up = true
+		} else {
+			up = false
+		}
+	} else if _, ok := err.(noActiveSessionError); ok {
+		logger.Printf("Warning: %s", err)
+		logger.Println("Renewing http session...")
+		initHTTPSession(url)
+		up = false
+	} else {
+		up = false
+	}
+
+	return up
+}
+
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
 	c.Period = config.GetDurationMs(configTree, c.Name+".period", 10000)
@@ -67,57 +91,17 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	logger.Printf("Configuration: %+v\n", c)
 
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
-	stUp := false
 	initHTTPSession(c.STUrl)
 
-	// Click handler
-	go func() {
-		// TODO: Move a wrapper for xdg-open to utils.
-		xdgOpen := utils.Which("xdg-open")
-		if xdgOpen == "" {
-			logger.Println("xdg-open is not available; terminating click handler.")
-			return
-		}
-
-		for event := range args.InCh {
-			switch event.Button {
-			case model.MouseButtonLeft:
-				exec.Command(xdgOpen, c.STUrl).CombinedOutput()
-			case model.MouseButtonRight:
-				if stUp {
-					stopSyncthing()
-				} else {
-					startSyncthing()
-				}
-			default:
-				continue
-			}
-		}
-	}()
+	if xdgOpen != "" {
+		go clickHandlers.NewListener(args, outputBlock, c)
+	} else {
+		logger.Println("xdg-open is not available.")
+		logger.Println("No click handler available")
+	}
 
 	for range time.NewTicker(c.Period).C {
-		if csrfToken == "" {
-			initHTTPSession(c.STUrl)
-		}
-
-		if resp, err := stGet(c.STUrl, "/rest/system/ping"); err == nil {
-			// I do not feel motivated to parse JSON now...
-			// This should suffice in most cases.
-			if resp == `{"ping":"pong"}` {
-				stUp = true
-			} else {
-				stUp = false
-			}
-		} else if _, ok := err.(noActiveSessionError); ok {
-			logger.Printf("Warning: %s", err)
-			logger.Println("Renewing http session...")
-			initHTTPSession(c.STUrl)
-			continue
-		} else {
-			stUp = false
-		}
-
-		if stUp {
+		if isUp(c.STUrl) {
 			outputBlock.Color = c.UpColor
 			outputBlock.FullText = c.UpString
 		} else {
