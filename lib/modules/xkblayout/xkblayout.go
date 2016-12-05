@@ -86,52 +86,12 @@ func (c *Config) Run(args *model.ModuleArgs) {
 
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 
-	// Click handler
-	go func() {
-		if len(c.Layouts) == 0 {
-			logger.Println("No layouts sepcified.")
-			logger.Println("Terminating click handler.")
-			return
-		}
-
-		for event := range args.InCh {
-			curLayout := queryCurrentLayout()
-			nextIndex := 0
-			prevIndex := 0
-
-			for i, l := range c.Layouts {
-				if l == curLayout {
-					switch i {
-					case 0:
-						nextIndex = i + 1
-						prevIndex = len(c.Layouts) - 1
-					// curIndex == last element
-					case len(c.Layouts) - 1:
-						nextIndex = 0
-						prevIndex = i - 1
-					default:
-						nextIndex = i + 1
-						prevIndex = i - 1
-					}
-
-					break
-				}
-			}
-
-			switch event.Button {
-			case model.MouseButtonLeft:
-				setLayout(c.Layouts[nextIndex])
-				outputBlock.FullText = fmt.Sprintf(c.Format, queryCurrentLayout())
-				args.ClickEventCh <- outputBlock
-			case model.MouseButtonRight:
-				setLayout(c.Layouts[prevIndex])
-				outputBlock.FullText = fmt.Sprintf(c.Format, queryCurrentLayout())
-				args.ClickEventCh <- outputBlock
-			default:
-				continue
-			}
-		}
-	}()
+	if len(c.Layouts) > 0 {
+		go clickHandlers.NewListener(args, outputBlock, c)
+	} else {
+		logger.Println("No layouts sepcified.")
+		logger.Println("No click handler available.")
+	}
 
 	for range time.NewTicker(c.Period).C {
 		outputBlock.FullText = fmt.Sprintf(c.Format, queryCurrentLayout())
