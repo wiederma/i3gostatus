@@ -21,12 +21,8 @@ const (
 	defaultPeriod = 10000
 )
 
-var logger *log.Logger
+var logger *log.Logger = log.New(os.Stderr, "[xkblayout] ", log.LstdFlags)
 var setxkbmap string
-
-func init() {
-	logger = log.New(os.Stderr, "[xkblayout] ", log.LstdFlags)
-}
 
 type Config struct {
 	model.BaseConfig
@@ -68,9 +64,9 @@ func setLayout(spec string) {
 
 	switch len(s) {
 	case 1:
-		exec.Command(setxkbmap, "-layout", s[0]).CombinedOutput()
+		exec.Command(setxkbmap, "-layout", s[0]).Run()
 	case 2:
-		exec.Command(setxkbmap, "-layout", s[0], "-variant", s[1]).CombinedOutput()
+		exec.Command(setxkbmap, "-layout", s[0], "-variant", s[1]).Run()
 	default:
 		logger.Println("Layoutstring is broken")
 		return
