@@ -18,7 +18,7 @@ const (
 	name               = "temperature"
 	moduleName         = "i3gostatus.modules." + name
 	defaultPeriod      = 5000
-	defaultFormat      = "%s°C"
+	defaultFormat      = "%d°C"
 	defaultUrgentTemp  = 70
 	defaultUrgentColor = "#FF0000"
 )
@@ -38,27 +38,30 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
-	thermalFile := "/sys/class/thermal/thermal_zone0/temp"
-	var temperatureStr string
-	var outputBlock *model.I3BarBlockWrapper
+	var (
+		outputBlock *model.I3BarBlockWrapper
+		temperature int
+		thermalFile = "/sys/class/thermal/thermal_zone0/temp"
+	)
 
 	for range time.NewTicker(c.Period).C {
 		outputBlock = model.NewBlock(moduleName, c.BaseConfig, args.Index)
-
-		if data, err := ioutil.ReadFile(thermalFile); err == nil {
-			temperatureStr = strings.TrimSuffix(strings.TrimSpace(string(data)), "000")
-		} else {
+		data, err := ioutil.ReadFile(thermalFile)
+		if err != nil {
 			panic(err)
 		}
 
-		if temp, err := strconv.Atoi(temperatureStr); err == nil {
-			if temp >= c.UrgentTemp {
+		dataStr := strings.TrimSpace(string(data))
+
+		if t, err := strconv.Atoi(dataStr); err == nil {
+			temperature = int(t / 1000)
+			if temperature >= c.UrgentTemp {
 				outputBlock.Urgent = true
 				outputBlock.Color = c.UrgentColor
 			}
 		}
 
-		outputBlock.FullText = fmt.Sprintf(c.Format, temperatureStr)
+		outputBlock.FullText = fmt.Sprintf(c.Format, temperature)
 		args.OutCh <- outputBlock
 	}
 }
