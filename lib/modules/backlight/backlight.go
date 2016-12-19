@@ -21,7 +21,7 @@ const (
 	name          = "backlight"
 	moduleName    = "i3gostatus.modules." + name
 	defaultPeriod = 3000
-	defaultFormat = "%.0f %%"
+	defaultFormat = "%.0f%%"
 )
 
 type Config struct {
