@@ -1,8 +1,9 @@
 package syncthing
 
 import (
-	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"os/exec"
+
+	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
 var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
