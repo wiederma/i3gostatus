@@ -29,11 +29,7 @@ type I3BarBlock struct {
 	Separator           bool   `json:"separator,omitempty"`
 	SeparatorBlockWidth string `json:"separator_block_width,omitempty"`
 	Markup              string `json:"markup,omitempty"`
-}
-
-type I3BarBlockWrapper struct {
-	I3BarBlock
-	Index int
+	Index               int    `json:"-"`
 }
 
 type I3ClickEvent struct {
@@ -57,8 +53,8 @@ const DefaultPeriod = 1000
 
 type ModuleArgs struct {
 	InCh         chan *I3ClickEvent
-	OutCh        chan *I3BarBlockWrapper
-	ClickEventCh chan *I3BarBlockWrapper
+	OutCh        chan *I3BarBlock
+	ClickEventCh chan *I3BarBlock
 	Index        int
 }
 
@@ -99,21 +95,19 @@ func NewHeader(click_events bool) *I3BarHeader {
 	}
 }
 
-func NewBlock(name string, initValues BaseConfig, index int) *I3BarBlockWrapper {
-	return &I3BarBlockWrapper{
-		I3BarBlock: I3BarBlock{
-			Name:                name,
-			Instance:            initValues.Instance,
-			Color:               initValues.Color,
-			Background:          initValues.Background,
-			Border:              initValues.Border,
-			MinWidth:            initValues.MinWidth,
-			Align:               initValues.Align,
-			Urgent:              initValues.Urgent,
-			Separator:           initValues.Separator,
-			SeparatorBlockWidth: initValues.SeparatorBlockWidth,
-			Markup:              initValues.Markup,
-		},
-		Index: index,
+func NewBlock(name string, initValues BaseConfig, index int) *I3BarBlock {
+	return &I3BarBlock{
+		Name:                name,
+		Instance:            initValues.Instance,
+		Color:               initValues.Color,
+		Background:          initValues.Background,
+		Border:              initValues.Border,
+		MinWidth:            initValues.MinWidth,
+		Align:               initValues.Align,
+		Urgent:              initValues.Urgent,
+		Separator:           initValues.Separator,
+		SeparatorBlockWidth: initValues.SeparatorBlockWidth,
+		Markup:              initValues.Markup,
+		Index:               index,
 	}
 }

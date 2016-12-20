@@ -11,7 +11,7 @@ var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
 	HandleWheelDown:  onWheelDown,
 }
 
-func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onRightClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	toggleMute()
 
 	// TODO: Remove duplicated code
@@ -26,7 +26,7 @@ func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data i
 	args.ClickEventCh <- block
 }
 
-func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	if err := increaseVolume(5); err != nil {
 		return
 	}
@@ -36,7 +36,7 @@ func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data inte
 	args.ClickEventCh <- block
 }
 
-func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	if err := decreaseVolume(5); err != nil {
 		return
 	}

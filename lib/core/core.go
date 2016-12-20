@@ -50,8 +50,8 @@ func Run(options *runtimeOptions) {
 	enabledModules := registry.Initialize(configTree)
 	rateLimit := utils.FindFastestModule(configTree)
 	rateTimer := time.NewTimer(rateLimit)
-	outChannel := make(chan *model.I3BarBlockWrapper)
-	clickEventChannel := make(chan *model.I3BarBlockWrapper)
+	outChannel := make(chan *model.I3BarBlock)
+	clickEventChannel := make(chan *model.I3BarBlock)
 	outSlice := make([]*model.I3BarBlock, len(enabledModules))
 	// The relevant inChannel is only used when click_events is enabled.
 	// If click_events is disabled, it is never written to  the channel.
@@ -83,9 +83,9 @@ func Run(options *runtimeOptions) {
 	for {
 		select {
 		case block := <-outChannel:
-			outSlice[block.Index] = &block.I3BarBlock
+			outSlice[block.Index] = block
 		case block := <-clickEventChannel:
-			outSlice[block.Index] = &block.I3BarBlock
+			outSlice[block.Index] = block
 			fmt.Println(fmt.Sprintf("%s,", utils.Json(outSlice)))
 		case <-rateTimer.C:
 			rateTimer.Reset(rateLimit)

@@ -66,7 +66,7 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	var outStr string
-	var outputBlock *model.I3BarBlockWrapper
+	var outputBlock *model.I3BarBlock
 	t := template.Must(template.New("load").Parse(c.Format))
 
 	for range time.NewTicker(c.Period).C {

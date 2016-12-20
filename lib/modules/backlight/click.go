@@ -14,7 +14,7 @@ var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
 	HandleRightClick: onWheelDown,
 }
 
-func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 
 	incBrightness(5)
@@ -22,7 +22,7 @@ func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data inte
 	args.ClickEventCh <- block
 }
 
-func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 
 	// Set hard limit. Otherwise the display could be blacked out

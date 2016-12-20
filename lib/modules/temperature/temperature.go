@@ -39,7 +39,7 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 
 func (c *Config) Run(args *model.ModuleArgs) {
 	var (
-		outputBlock *model.I3BarBlockWrapper
+		outputBlock *model.I3BarBlock
 		temperature int
 		thermalFile = "/sys/class/thermal/thermal_zone0/temp"
 	)

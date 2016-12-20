@@ -1,14 +1,14 @@
 package model
 
 type ClickHandlers struct {
-	HandleLeftClick   func(*ModuleArgs, *I3BarBlockWrapper, interface{})
-	HandleMiddleClick func(*ModuleArgs, *I3BarBlockWrapper, interface{})
-	HandleRightClick  func(*ModuleArgs, *I3BarBlockWrapper, interface{})
-	HandleWheelUp     func(*ModuleArgs, *I3BarBlockWrapper, interface{})
-	HandleWheelDown   func(*ModuleArgs, *I3BarBlockWrapper, interface{})
+	HandleLeftClick   func(*ModuleArgs, *I3BarBlock, interface{})
+	HandleMiddleClick func(*ModuleArgs, *I3BarBlock, interface{})
+	HandleRightClick  func(*ModuleArgs, *I3BarBlock, interface{})
+	HandleWheelUp     func(*ModuleArgs, *I3BarBlock, interface{})
+	HandleWheelDown   func(*ModuleArgs, *I3BarBlock, interface{})
 }
 
-func (handlers *ClickHandlers) NewListener(args *ModuleArgs, block *I3BarBlockWrapper, data interface{}) {
+func (handlers *ClickHandlers) NewListener(args *ModuleArgs, block *I3BarBlock, data interface{}) {
 	for event := range args.InCh {
 		switch event.Button {
 		case MouseButtonLeft:

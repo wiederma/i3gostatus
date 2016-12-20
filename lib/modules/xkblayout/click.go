@@ -35,7 +35,7 @@ func determineIndexes(layouts []string) {
 	}
 }
 
-func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onRightClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 	determineIndexes(config.Layouts)
 
@@ -44,7 +44,7 @@ func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data i
 	args.ClickEventCh <- block
 }
 
-func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 	determineIndexes(config.Layouts)
 

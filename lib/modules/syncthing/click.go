@@ -11,7 +11,7 @@ var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
 	HandleLeftClick:  onLeftClick,
 }
 
-func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onRightClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 
 	if isUp(config.STUrl) {
@@ -21,7 +21,7 @@ func onRightClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data i
 	}
 }
 
-func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlockWrapper, data interface{}) {
+func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
 	config := data.(*Config)
 	exec.Command(xdgOpen, config.STUrl).Run()
 }
