@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	name          = "cpu"
-	moduleName    = "i3gostatus.modules." + name
-	defaultFormat = `CPU: {{.BusyPerc | printf "%.0f"}} %`
+	name            = "cpu"
+	moduleName      = "i3gostatus.modules." + name
+	defaultFormat   = `CPU: {{.BusyPerc | printf "%.0f"}}%`
+	defaultMinWidth = `CPU: 90%` // It is not so likely to get 100%, so let's save that char.
 )
 
 type Config struct {
@@ -28,6 +29,7 @@ type Config struct {
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
+	c.MinWidth = config.GetString(configTree, name+".min_width", defaultMinWidth)
 }
 
 type cpuStat struct {
