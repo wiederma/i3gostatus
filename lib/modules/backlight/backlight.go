@@ -77,31 +77,7 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	}
 
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
-
-	// Click handler as a closure. We need to access some variables and
-	// I am too lazy to create some function with arguments and so on...
-	go func() {
-		for event := range args.InCh {
-			switch event.Button {
-			case model.MouseButtonLeft, model.MouseWheelUp:
-				incBrightness(5)
-				outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
-				args.ClickEventCh <- outputBlock
-			case model.MouseButtonRight, model.MouseWheelDown:
-				// Set hard limit. Otherwise the display could be blacked out
-				// completetly when using the mouse wheel. This is annoying.
-				if b := getBrightness(); b <= 10 {
-					setBrightness(10)
-				} else {
-					decBrightness(5)
-					outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
-					args.ClickEventCh <- outputBlock
-				}
-			default:
-				continue
-			}
-		}
-	}()
+	go clickHandlers.NewListener(args, outputBlock, c)
 
 	for range time.NewTicker(c.Period).C {
 		outputBlock.FullText = fmt.Sprintf(c.Format, getBrightness())
