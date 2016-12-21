@@ -16,11 +16,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
-var logger *log.Logger
-
-func init() {
-	logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
-}
+var logger *log.Logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
 
 func writeHeader(options *runtimeOptions) {
 	header := model.NewHeader(options.clickEvents)
