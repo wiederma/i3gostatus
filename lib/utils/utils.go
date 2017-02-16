@@ -15,11 +15,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
-var logger *log.Logger
-
-func init() {
-	logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
-}
+var logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
 
 func Json(data interface{}) string {
 	json, err := json.Marshal(data)
