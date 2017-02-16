@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml"
-	"github.com/satori/go.uuid"
 )
 
 type I3BarHeader struct {
@@ -67,7 +66,7 @@ type BaseConfig struct {
 
 func (c *BaseConfig) Parse(name string, configTree *toml.TomlTree) {
 	c.Name = name
-	c.Instance = uuid.NewV4().String()
+	c.Instance = uuidV4()
 	c.Color = configTree.GetDefault(c.Name+".color", "").(string)
 	c.Background = configTree.GetDefault(c.Name+".background", "").(string)
 	c.Border = configTree.GetDefault(c.Name+".border", "").(string)

@@ -1,5 +1,5 @@
-hash: 6e8321e83045cac236b21bb5aed692bfe08b65ba3e50a94e4be88460c1cecd4e
-updated: 2017-02-16T22:30:06.53994803+01:00
+hash: 9ddf4b23089f6d150153be15fd59aa8e0bfd1bf901899a7b7f18478c4c55f016
+updated: 2017-02-16T23:36:37.588718194+01:00
 imports:
 - name: github.com/cactus/gostrftime
   version: b8b45cd4d6faa3d8bca9b6a0826520d84b354e8c
@@ -7,6 +7,4 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: d464759235b8fd59f8ab4c44807d7c36e1678add
-- name: github.com/satori/go.uuid
-  version: 879c5887cd475cd7864858769793b2ceb0d44feb
 testImports: []
