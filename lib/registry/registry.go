@@ -6,6 +6,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/config"
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/backlight"
+	"github.com/rumpelsepp/i3gostatus/lib/modules/battery"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/cpu"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/datetime"
 	"github.com/rumpelsepp/i3gostatus/lib/modules/disk"
@@ -23,6 +24,7 @@ func init() {
 	availableModules = make(map[string]model.Module)
 
 	// Add all available modules here!
+	availableModules["battery"] = &battery.Config{}
 	availableModules["backlight"] = &backlight.Config{}
 	availableModules["cpu"] = &cpu.Config{}
 	availableModules["datetime"] = &datetime.Config{}
