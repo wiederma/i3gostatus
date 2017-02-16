@@ -25,7 +25,7 @@ const (
 	defaultFormat = "♪: %s"
 )
 
-var logger *log.Logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+var logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 var ponymix string
 
 type Config struct {
@@ -57,16 +57,9 @@ func isMuted() bool {
 }
 
 func toggleMute() error {
-	if isMuted() {
-		if err := exec.Command(ponymix, "unmute").Run(); err != nil {
-			logger.Printf("Failed muting device: %s\n", err)
-			return err
-		}
-	} else {
-		if err := exec.Command(ponymix, "mute").Run(); err != nil {
-			logger.Printf("Failed unmuting device: %s\n", err)
-			return err
-		}
+	if err := exec.Command(ponymix, "toggle").Run(); err != nil {
+		logger.Printf("Failed toggle device: %s\n", err)
+		return err
 	}
 
 	return nil

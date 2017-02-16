@@ -6,7 +6,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/model"
 )
 
-var clickHandlers *model.ClickHandlers = &model.ClickHandlers{
+var clickHandlers = &model.ClickHandlers{
 	HandleRightClick: onRightClick,
 	HandleLeftClick:  onLeftClick,
 }

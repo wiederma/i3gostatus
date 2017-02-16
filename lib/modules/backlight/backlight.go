@@ -28,13 +28,10 @@ type Config struct {
 	model.BaseConfig
 }
 
-var logger *log.Logger
-var xbacklight string
-
-func init() {
-	logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+var (
+	logger     = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 	xbacklight = utils.Which("xbacklight")
-}
+)
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)

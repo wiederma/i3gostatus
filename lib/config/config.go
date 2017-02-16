@@ -9,11 +9,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-var logger *log.Logger
-
-func init() {
-	logger = log.New(os.Stderr, "[config] ", log.LstdFlags)
-}
+var logger = log.New(os.Stderr, "[config] ", log.LstdFlags)
 
 func Path() string {
 	var configPath string
@@ -38,7 +34,7 @@ func Load(path string) *toml.TomlTree {
 		logger.Println(err)
 		logger.Println("Using default config...")
 
-		defaultConfig := `modules = ["datetime"]`
+		defaultConfig := `modules = ["datetime", "load"]`
 		configTree, err = toml.Load(defaultConfig)
 
 		if err != nil {
