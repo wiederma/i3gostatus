@@ -1,0 +1,8 @@
+package: github.com/rumpelsepp/i3gostatus
+import:
+- package: github.com/cactus/gostrftime
+  version: ^1.0.0
+- package: github.com/pelletier/go-toml
+  version: ^0.4.0
+- package: github.com/satori/go.uuid
+  version: ^1.1.0
