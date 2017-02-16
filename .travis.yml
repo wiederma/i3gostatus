@@ -1,15 +1,10 @@
 language: go
 
 go:
+  - 1.8
   - 1.7
   - 1.6
   - master
-
-install:
-  - go get github.com/kardianos/govendor
-
-before_script:
-  - govendor sync
 
 script:
   - bash ./test.sh
