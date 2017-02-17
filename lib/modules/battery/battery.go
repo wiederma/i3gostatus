@@ -25,14 +25,16 @@ const (
 	moduleName         = "i3gostatus.modules." + name
 	defaultPeriod      = 5000
 	powerSupplyBaseDir = "/sys/class/power_supply/"
-	defaultFormat      = `BAT: {{.EnergyNowPerc | printf "%.0f" }}%`
-	defaultMinWidth    = `BAT: 90%`
+	defaultFormat      = `BAT{{.Index}}: {{.EnergyNowPerc | printf "%.0f" }}%`
+	defaultMinWidth    = `BAT0: 90%`
+	defaultIndex       = "sum"
 )
 
-var logger = log.New(os.Stderr, "i3gostatus ", log.LstdFlags)
+var logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 
 type Config struct {
 	model.BaseConfig
+	Index string
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
@@ -40,10 +42,12 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
 	c.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
 	c.MinWidth = config.GetString(configTree, name+".min_width", defaultMinWidth)
+	c.Index = config.GetString(configTree, name+".index", defaultIndex)
 }
 
 type batteryStats struct {
 	Status           string
+	Index            int
 	EnergyNow        int
 	EnergyFull       int
 	EnergyFullDesign int
@@ -89,39 +93,67 @@ func numberOfBatteries() int {
 	return n
 }
 
-func getBatteryStats() *batteryStats {
-	stats := &batteryStats{}
+func getBatteryStats() []*batteryStats {
+	nbats := numberOfBatteries()
+	stats := make([]*batteryStats, nbats+1)
+	statsSum := &batteryStats{Index: nbats}
 
-	for i := 0; i < numberOfBatteries(); i++ {
+	for i := 0; i < nbats; i++ {
 		basepath := filepath.Join(powerSupplyBaseDir, fmt.Sprintf("BAT%d", i))
 		energyFullStr, _ := ioutil.ReadFile(filepath.Join(basepath, "energy_full"))
 		energyNowStr, _ := ioutil.ReadFile(filepath.Join(basepath, "energy_now"))
 		energyFull, _ := strconv.Atoi(strings.TrimSpace(string(energyFullStr)))
 		energyNow, _ := strconv.Atoi(strings.TrimSpace(string(energyNowStr)))
 
-		stats.EnergyNow += energyNow
-		stats.EnergyFull += energyFull
+		statsSum.EnergyFull += energyFull
+		statsSum.EnergyNow += energyNow
+
+		stats[i] = &batteryStats{
+			Index:         i,
+			EnergyFull:    energyFull,
+			EnergyNow:     energyNow,
+			EnergyNowPerc: (float64(energyNow) / float64(energyFull)) * 100,
+		}
 	}
 
-	stats.EnergyNowPerc = (float64(stats.EnergyNow) / float64(stats.EnergyFull)) * 100
+	statsSum.EnergyNowPerc = (float64(statsSum.EnergyNow) / float64(statsSum.EnergyFull)) * 100
+	stats[nbats] = statsSum
 
 	return stats
 }
 
-func (c *Config) Run(args *model.ModuleArgs) {
+func (c *Config) curIndex() int {
+	var showIndex int
+
+	if c.Index == "sum" {
+		showIndex = numberOfBatteries()
+	} else {
+		showIndex, _ = strconv.Atoi(c.Index)
+	}
+
+	return showIndex
+}
+
+func (c *Config) renderTemplate() string {
 	var outStr string
 	t := template.Must(template.New("battery").Parse(c.Format))
+	buf := bytes.NewBufferString(outStr)
+	batStats := getBatteryStats()
+
+	if err := t.Execute(buf, batStats[c.curIndex()]); err != nil {
+		logger.Panicln(err)
+	}
+
+	return buf.String()
+}
+
+func (c *Config) Run(args *model.ModuleArgs) {
+	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
+
+	go clickHandlers.NewListener(args, outputBlock, c)
 
 	for range time.NewTicker(c.Period).C {
-		outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
-		batStats := getBatteryStats()
-		buf := bytes.NewBufferString(outStr)
-
-		if err := t.Execute(buf, batStats); err != nil {
-			logger.Panicln(err)
-		}
-
-		outputBlock.FullText = buf.String()
+		outputBlock.FullText = c.renderTemplate()
 		args.OutCh <- outputBlock
 	}
 }
