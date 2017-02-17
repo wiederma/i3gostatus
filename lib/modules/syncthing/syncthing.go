@@ -17,7 +17,7 @@ const (
 	moduleName = "i3gostatus.modules." + name
 )
 
-var logger *log.Logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+var logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 var xdgOpen string = utils.Which("xdg-open")
 
 type Config struct {
