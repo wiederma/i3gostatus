@@ -9,9 +9,9 @@ import (
 
 type I3BarHeader struct {
 	Version     int  `json:"version"`
-	StopSignal  int  `json:"stop_signal",omitempty`
-	ContSignal  int  `json:"cont_signal",omitempty`
-	ClickEvents bool `json:"click_events",omitempty`
+	StopSignal  int  `json:"stop_signal,omitempty"`
+	ContSignal  int  `json:"cont_signal,omitempty"`
+	ClickEvents bool `json:"click_events,omitempty"`
 }
 
 type I3BarBlock struct {
@@ -22,7 +22,7 @@ type I3BarBlock struct {
 	Border              string `json:"border,omitempty"`
 	MinWidth            string `json:"min_width,omitempty"`
 	Align               string `json:"align,omitempty"`
-	Name                string `json:"name",omitempty`
+	Name                string `json:"name,omitempty"`
 	Instance            string `json:"instance,omitempty"`
 	Urgent              bool   `json:"urgent,omitempty"`
 	Separator           bool   `json:"separator,omitempty"`
