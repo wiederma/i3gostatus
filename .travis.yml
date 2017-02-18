@@ -5,11 +5,14 @@ go:
   - 1.7
   - master
 
+install:
+  - go get -v github.com/Masterminds/glide
+
 script:
   - bash ./test.sh
 
 before_script:
-  - go vet ./...
+  - go vet $(glide novendor)
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
