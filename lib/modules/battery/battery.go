@@ -25,7 +25,7 @@ const (
 	moduleName         = "i3gostatus.modules." + name
 	defaultPeriod      = 5000
 	powerSupplyBaseDir = "/sys/class/power_supply/"
-	defaultFormat      = `{{if .IsCharging}}🔌{{end}} BAT{{.Index}}: {{.Capacity}}%`
+	defaultFormat      = `{{if .IsCharging}}🔌 {{end}}BAT{{.Index}}: {{.Capacity}}%`
 	defaultMinWidth    = `BAT0: 90%`
 	defaultIndex       = "sum"
 )
