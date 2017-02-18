@@ -12,6 +12,6 @@ func TestInitialize(t *testing.T) {
 
 	if n := len(enabledModules); n != 3 {
 		t.Error("len(enabledModules) does not match!")
-		t.Errorf("Expected: %s", n)
+		t.Errorf("Expected: %d", n)
 	}
 }
