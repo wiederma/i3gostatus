@@ -16,7 +16,7 @@ import (
 	"github.com/rumpelsepp/i3gostatus/lib/utils"
 )
 
-var logger *log.Logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
+var logger = log.New(os.Stderr, "[i3gostatus] ", log.LstdFlags)
 
 func writeHeader(options *runtimeOptions) {
 	header := model.NewHeader(options.clickEvents)
@@ -26,8 +26,8 @@ func writeHeader(options *runtimeOptions) {
 }
 
 func readStdin(outChannels map[string]chan *model.I3ClickEvent) {
-	scanner := bufio.NewScanner(os.Stdin)
 	var inputStr string
+	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
 		// Trim the endless JSON array stuff. It causes parse errors,
@@ -36,7 +36,11 @@ func readStdin(outChannels map[string]chan *model.I3ClickEvent) {
 		clickEvent := &model.I3ClickEvent{}
 
 		if err := json.Unmarshal([]byte(inputStr), clickEvent); err == nil {
-			outChannels[clickEvent.Instance] <- clickEvent
+			select {
+			case outChannels[clickEvent.Instance] <- clickEvent:
+			case <-time.After(50 * time.Millisecond):
+				continue
+			}
 		}
 	}
 }
