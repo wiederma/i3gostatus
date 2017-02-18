@@ -25,7 +25,7 @@ const (
 	moduleName         = "i3gostatus.modules." + name
 	defaultPeriod      = 5000
 	powerSupplyBaseDir = "/sys/class/power_supply/"
-	defaultFormat      = `BAT{{.Index}}: {{.EnergyNowPerc | printf "%.0f" }}%`
+	defaultFormat      = `{{if .IsCharging}}🔌{{end}} BAT{{.Index}}: {{.Capacity}}%`
 	defaultMinWidth    = `BAT0: 90%`
 	defaultIndex       = "sum"
 )
@@ -46,16 +46,14 @@ func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 }
 
 type batteryStats struct {
-	Status           string
 	Index            int
+	Status           string
+	Capacity         int
 	EnergyNow        int
 	EnergyFull       int
 	EnergyFullDesign int
 	VoltageNow       int
-
-	// Calculated fields
-	EnergyNowPerc float64
-	Degradation   float64
+	IsCharging       bool
 }
 
 func numberOfBatteries() int {
@@ -93,30 +91,46 @@ func numberOfBatteries() int {
 	return n
 }
 
+func readBatValInt(index int, value string) int {
+	basepath := filepath.Join(powerSupplyBaseDir, fmt.Sprintf("BAT%d", index))
+	valStr, _ := ioutil.ReadFile(filepath.Join(basepath, value))
+	val, _ := strconv.Atoi(strings.TrimSpace(string(valStr)))
+	return val
+}
+
+func isCharging(index int) bool {
+	basepath := filepath.Join(powerSupplyBaseDir, fmt.Sprintf("BAT%d", index))
+	valStr, _ := ioutil.ReadFile(filepath.Join(basepath, "status"))
+
+	if strings.TrimSpace(string(valStr)) == "Charging" {
+		return true
+	}
+
+	return false
+}
+
 func getBatteryStats() []*batteryStats {
 	nbats := numberOfBatteries()
 	stats := make([]*batteryStats, nbats+1)
 	statsSum := &batteryStats{Index: nbats}
 
 	for i := 0; i < nbats; i++ {
-		basepath := filepath.Join(powerSupplyBaseDir, fmt.Sprintf("BAT%d", i))
-		energyFullStr, _ := ioutil.ReadFile(filepath.Join(basepath, "energy_full"))
-		energyNowStr, _ := ioutil.ReadFile(filepath.Join(basepath, "energy_now"))
-		energyFull, _ := strconv.Atoi(strings.TrimSpace(string(energyFullStr)))
-		energyNow, _ := strconv.Atoi(strings.TrimSpace(string(energyNowStr)))
-
-		statsSum.EnergyFull += energyFull
-		statsSum.EnergyNow += energyNow
-
 		stats[i] = &batteryStats{
-			Index:         i,
-			EnergyFull:    energyFull,
-			EnergyNow:     energyNow,
-			EnergyNowPerc: (float64(energyNow) / float64(energyFull)) * 100,
+			Index:      i,
+			Capacity:   readBatValInt(i, "capacity"),
+			EnergyFull: readBatValInt(i, "energy_full"),
+			EnergyNow:  readBatValInt(i, "energy_now"),
+			IsCharging: isCharging(i),
 		}
+
+		if stats[i].IsCharging {
+			statsSum.IsCharging = true
+		}
+
+		statsSum.Capacity += stats[i].Capacity
 	}
 
-	statsSum.EnergyNowPerc = (float64(statsSum.EnergyNow) / float64(statsSum.EnergyFull)) * 100
+	statsSum.Capacity = int(statsSum.Capacity / nbats)
 	stats[nbats] = statsSum
 
 	return stats
