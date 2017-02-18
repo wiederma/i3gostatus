@@ -1,6 +1,9 @@
 package model
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+	"strings"
+)
 
 func uuidV4() string {
 	uuid, err := ioutil.ReadFile("/proc/sys/kernel/random/uuid")
@@ -8,5 +11,5 @@ func uuidV4() string {
 		panic(err)
 	}
 
-	return string(uuid)
+	return strings.TrimSpace(string(uuid))
 }
