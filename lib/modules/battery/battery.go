@@ -130,7 +130,15 @@ func getBatteryStats() []*batteryStats {
 		statsSum.Capacity += stats[i].Capacity
 	}
 
-	statsSum.Capacity = int(statsSum.Capacity / nbats)
+	energy_full_sum := float64(0)
+	energy_now_sum := float64(0)
+
+	for i := 0; i < nbats; i++ {
+		energy_full_sum += float64(stats[i].EnergyFull)
+		energy_now_sum += float64(stats[i].EnergyNow)
+	}
+
+	statsSum.Capacity = int((energy_now_sum / energy_full_sum) * 100)
 	stats[nbats] = statsSum
 
 	return stats
