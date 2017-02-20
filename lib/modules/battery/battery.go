@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -138,7 +139,7 @@ func getBatteryStats() []*batteryStats {
 		energy_now_sum += float64(stats[i].EnergyNow)
 	}
 
-	statsSum.Capacity = int((energy_now_sum / energy_full_sum) * 100)
+	statsSum.Capacity = int(math.Ceil((energy_now_sum / energy_full_sum) * 100))
 	stats[nbats] = statsSum
 
 	return stats
