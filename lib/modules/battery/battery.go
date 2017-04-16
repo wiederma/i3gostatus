@@ -47,21 +47,23 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	outputBlock := model.NewBlock(moduleName, c.BaseConfig, args.Index)
 	var outStr string
 
+	// Cleanup template, newlines and tabs are not useful in i3bar.
 	c.Format = strings.Replace(c.Format, "\n", "", -1)
 	c.Format = strings.Replace(c.Format, "\t", "", -1)
 	var t = template.Must(template.New("upower").Parse(c.Format))
 
+	// FIXME: Do not spam dbus, instead subscribe to signals.
 	for range time.NewTicker(c.Period).C {
 		buf := bytes.NewBufferString(outStr)
 		devs := enumerateDevices()
-		dev_data := make([]Properties, len(devs))
+		var dev_data []Properties
 
-		for i, dev := range devs {
+		for _, dev := range devs {
 			// TODO: First query type, then query everything.
 			d := getAllProperties(dev)
 
 			if d.Type == Battery && d.IsPresent {
-				dev_data[i] = d
+				dev_data = append(dev_data, d)
 			}
 		}
 
