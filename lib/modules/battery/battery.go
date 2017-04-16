@@ -52,14 +52,13 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	var t = template.Must(template.New("upower").Parse(c.Format))
 
 	for range time.NewTicker(c.Period).C {
-		upower := upower_connect()
 		buf := bytes.NewBufferString(outStr)
-		devs := upower.enumerateDevices()
+		devs := enumerateDevices()
 		dev_data := make([]Properties, len(devs))
 
 		for i, dev := range devs {
 			// TODO: First query type, then query everything.
-			d := upower.getAllProperties(dev)
+			d := getAllProperties(dev)
 
 			if d.Type == Battery && d.IsPresent {
 				dev_data[i] = d

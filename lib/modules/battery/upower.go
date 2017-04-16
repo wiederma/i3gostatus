@@ -6,10 +6,6 @@ import (
 	"github.com/godbus/dbus"
 )
 
-type upowerConnection struct {
-	dbusConn *dbus.Conn
-}
-
 const busName = "org.freedesktop.UPower"
 
 const Unkown = 0
@@ -61,26 +57,19 @@ type Properties struct {
 	IsRechargeable   bool
 	Capacity         float64
 	Technology       uint32
-	RecallNotice     bool
-	RecallVendor     string
-	RecallUrl        string
 }
 
-func upower_connect() *upowerConnection {
+func enumerateDevices() []dbus.ObjectPath {
+	method := "org.freedesktop.UPower.EnumerateDevices"
+	var objects []dbus.ObjectPath
+
 	conn, err := dbus.SystemBus()
 	if err != nil {
 		logger.Panicln(err)
 	}
 
-	return &upowerConnection{conn}
-}
-
-func (u *upowerConnection) enumerateDevices() []dbus.ObjectPath {
-	method := "org.freedesktop.UPower.EnumerateDevices"
-	var objects []dbus.ObjectPath
-
-	obj := u.dbusConn.Object(busName, "/org/freedesktop/UPower")
-	err := obj.Call(method, 0).Store(&objects)
+	obj := conn.Object(busName, "/org/freedesktop/UPower")
+	err = obj.Call(method, 0).Store(&objects)
 	if err != nil {
 		logger.Panicln(err)
 	}
@@ -88,10 +77,16 @@ func (u *upowerConnection) enumerateDevices() []dbus.ObjectPath {
 	return objects
 }
 
-func (u *upowerConnection) getAllProperties(dev dbus.ObjectPath) Properties {
+func getAllProperties(dev dbus.ObjectPath) Properties {
 	variants := map[string]dbus.Variant{}
 	props := Properties{}
-	obj := u.dbusConn.Object(busName, dev)
+
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		logger.Panicln(err)
+	}
+
+	obj := conn.Object(busName, dev)
 	if err := obj.Call("org.freedesktop.DBus.Properties.GetAll", 0, "org.freedesktop.UPower.Device").Store(&variants); err != nil {
 		logger.Panicln(err)
 	}
@@ -120,10 +115,6 @@ func (u *upowerConnection) getAllProperties(dev dbus.ObjectPath) Properties {
 	props.IsRechargeable = variants["IsRechargeable"].Value().(bool)
 	props.Capacity = variants["Capacity"].Value().(float64)
 	props.Technology = variants["Technology"].Value().(uint32)
-	// TODO: This fails
-	// props.RecallNotice = variants["RecallNotice"].Value().(bool)
-	// props.RecallVendor = variants["RecallVendor"].Value().(string)
-	// props.RecallUrl = variants["RecallUrl"].Value().(string)
 
 	return props
 }
