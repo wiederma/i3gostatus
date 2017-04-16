@@ -1,10 +1,12 @@
 hash: 540fbbb97b8094507ed2187ebc4d11bae96f64bf93c62c22a9d3f1bc2d6df97a
-updated: 2017-04-16T21:10:03.760954207+02:00
+updated: 2017-04-16T22:58:10.936308746+02:00
 imports:
 - name: github.com/cactus/gostrftime
   version: b8b45cd4d6faa3d8bca9b6a0826520d84b354e8c
 - name: github.com/godbus/dbus
   version: 5f6efc7ef2759c81b7ba876593971bfce311eab3
+- name: github.com/pelletier/go-buffruneio
+  version: c37440a7cf42ac63b919c752ca73a85067e05992
 - name: github.com/pelletier/go-toml
   version: 13d49d4606eb801b8f01ae542b4afc4c6ee3d84a
 testImports: []
