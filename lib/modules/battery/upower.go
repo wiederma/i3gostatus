@@ -1,5 +1,7 @@
 package battery
 
+// FIXME: This code is a mess.
+
 import (
 	"time"
 
@@ -117,4 +119,26 @@ func getAllProperties(dev dbus.ObjectPath) Properties {
 	props.Technology = variants["Technology"].Value().(uint32)
 
 	return props
+}
+
+func SignalChanged() chan *dbus.Signal {
+	ch := make(chan *dbus.Signal, 10)
+
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		logger.Panicln(err)
+	}
+
+	call := conn.BusObject().Call(
+		"org.freedesktop.DBus.AddMatch",
+		0,
+		"sender='org.freedesktop.UPower',path='/org/freedesktop/UPower/devices/DisplayDevice',type='signal'",
+	)
+	if call.Err != nil {
+		logger.Panicln(call.Err)
+	}
+
+	conn.Signal(ch)
+
+	return ch
 }
