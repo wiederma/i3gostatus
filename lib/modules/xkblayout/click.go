@@ -41,7 +41,7 @@ func onRightClick(args *model.ModuleArgs, block *model.I3BarBlock, data interfac
 
 	setLayout(config.Layouts[prevIndex])
 	block.FullText = fmt.Sprintf(config.Format, queryCurrentLayout())
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }
 
 func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
@@ -50,5 +50,5 @@ func onLeftClick(args *model.ModuleArgs, block *model.I3BarBlock, data interface
 
 	setLayout(config.Layouts[nextIndex])
 	block.FullText = fmt.Sprintf(config.Format, queryCurrentLayout())
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }

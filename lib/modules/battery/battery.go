@@ -84,7 +84,7 @@ func (c *Config) Run(args *model.ModuleArgs) {
 			outputBlock.Background = "ff0000"
 		}
 
-		args.ClickEventCh <- outputBlock
+		args.EventCh <- outputBlock
 
 		// Block here until sth. happens.
 		// This is better than using in for { ... } since

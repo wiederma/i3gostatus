@@ -19,7 +19,7 @@ func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}
 
 	incBrightness(5)
 	block.FullText = fmt.Sprintf(config.Format, getBrightness())
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }
 
 func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
@@ -32,6 +32,6 @@ func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface
 	} else {
 		decBrightness(5)
 		block.FullText = fmt.Sprintf(config.Format, getBrightness())
-		args.ClickEventCh <- block
+		args.EventCh <- block
 	}
 }

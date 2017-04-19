@@ -51,10 +51,10 @@ const (
 const DefaultPeriod = 1000
 
 type ModuleArgs struct {
-	InCh         chan *I3ClickEvent
-	OutCh        chan *I3BarBlock
-	ClickEventCh chan *I3BarBlock
-	Index        int
+	InCh    chan *I3ClickEvent
+	OutCh   chan *I3BarBlock
+	EventCh chan *I3BarBlock
+	Index   int
 }
 
 type BaseConfig struct {

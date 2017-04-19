@@ -23,7 +23,7 @@ func onRightClick(args *model.ModuleArgs, block *model.I3BarBlock, data interfac
 		block.Color = ""
 	}
 
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }
 
 func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
@@ -33,7 +33,7 @@ func onWheelUp(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}
 
 	config := data.(*Config)
 	block.FullText = fmt.Sprintf(config.Format, getCurrentVolume())
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }
 
 func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface{}) {
@@ -43,5 +43,5 @@ func onWheelDown(args *model.ModuleArgs, block *model.I3BarBlock, data interface
 
 	config := data.(*Config)
 	block.FullText = fmt.Sprintf(config.Format, getCurrentVolume())
-	args.ClickEventCh <- block
+	args.EventCh <- block
 }
