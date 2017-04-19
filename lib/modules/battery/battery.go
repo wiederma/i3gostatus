@@ -20,12 +20,12 @@ const (
 	name          = "battery"
 	moduleName    = "i3gostatus.modules." + name
 	defaultFormat = `
-		{{if eq .State 1}}🔌: {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
-		{{if eq .State 2}}🔋: {{.Percentage | printf "%.0f"}}% ({{.TimeToEmpty}}){{end}}
-		{{if eq .State 3}}🔋: EMPTY{{end}}
-		{{if eq .State 4}}🔋: FULL{{end}}`
+		{{if eq .State 1}}🔌 {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
+		{{if eq .State 2}}🔋 {{.Percentage | printf "%.0f"}}% ({{.TimeToEmpty}}){{end}}
+		{{if eq .State 3}}🔋 EMPTY{{end}}
+		{{if eq .State 4}}🔋 FULL{{end}}`
 	defaultFormatOnAC = `
-		{{if eq .State 1}}🔌: {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
+		{{if eq .State 1}}🔌 {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
 		{{if eq .State 4}}🔌{{end}}`
 )
 
