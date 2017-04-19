@@ -79,6 +79,21 @@ func enumerateDevices() []dbus.ObjectPath {
 	return objects
 }
 
+func isOnBattery() bool {
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		logger.Panicln(err)
+	}
+
+	obj := conn.Object(busName, "/org/freedesktop/UPower")
+	ret, err := obj.GetProperty("org.freedesktop.UPower.OnBattery")
+	if err != nil {
+		logger.Panicln(err)
+	}
+
+	return ret.Value().(bool)
+}
+
 func getAllProperties(dev dbus.ObjectPath) Properties {
 	variants := map[string]dbus.Variant{}
 	props := Properties{}

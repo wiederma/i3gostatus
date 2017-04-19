@@ -19,24 +19,27 @@ import (
 const (
 	name          = "battery"
 	moduleName    = "i3gostatus.modules." + name
-	defaultPeriod = 5000
 	defaultFormat = `
-		{{if eq .State 1}}BAT: 🔌 {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
-		{{if eq .State 2}}BAT: {{.Percentage | printf "%.0f"}}% ({{.TimeToEmpty}}){{end}}
-		{{if eq .State 3}}BAT: EMPTY{{end}}
-		{{if eq .State 4}}BAT: FULL{{end}}`
+		{{if eq .State 1}}🔌: {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
+		{{if eq .State 2}}🔋: {{.Percentage | printf "%.0f"}}% ({{.TimeToEmpty}}){{end}}
+		{{if eq .State 3}}🔋: EMPTY{{end}}
+		{{if eq .State 4}}🔋: FULL{{end}}`
+	defaultFormatOnAC = `
+		{{if eq .State 1}}🔌: {{.Percentage | printf "%.0f"}}% ({{.TimeToFull}}){{end}}
+		{{if eq .State 4}}🔌{{end}}`
 )
 
 var logger = log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 
 type Config struct {
 	model.BaseConfig
+	FormatOnAC string
 }
 
 func (c *Config) ParseConfig(configTree *toml.TomlTree) {
 	c.BaseConfig.Parse(name, configTree)
 	c.Format = config.GetString(configTree, name+".format", defaultFormat)
-	c.Period = config.GetDurationMs(configTree, name+".period", defaultPeriod)
+	c.FormatOnAC = config.GetString(configTree, name+".format_on_ac", defaultFormatOnAC)
 }
 
 func (c *Config) Run(args *model.ModuleArgs) {
@@ -45,19 +48,28 @@ func (c *Config) Run(args *model.ModuleArgs) {
 	var outStr string
 
 	// Cleanup template, newlines and tabs are not useful in i3bar.
-	c.Format = strings.Replace(c.Format, "\n", "", -1)
-	c.Format = strings.Replace(c.Format, "\t", "", -1)
+	c.Format = strings.Replace(strings.Replace(c.Format, "\n", "", -1), "\t", "", -1)
+	c.FormatOnAC = strings.Replace(strings.Replace(c.FormatOnAC, "\n", "", -1), "\t", "", -1)
 
-	var t = template.Must(template.New("upower").Parse(c.Format))
+	onBatTmpl := template.Must(template.New("onBattery").Parse(c.Format))
+	onACTmpl := template.Must(template.New("onAC").Parse(c.FormatOnAC))
 
 	for {
 		buf := bytes.NewBufferString(outStr)
 		data := getAllProperties("/org/freedesktop/UPower/devices/DisplayDevice")
 
-		if err := t.Execute(buf, data); err == nil {
-			outputBlock.FullText = buf.String()
+		if isOnBattery() {
+			if err := onBatTmpl.Execute(buf, data); err == nil {
+				outputBlock.FullText = buf.String()
+			} else {
+				outputBlock.FullText = fmt.Sprint(err)
+			}
 		} else {
-			outputBlock.FullText = fmt.Sprint(err)
+			if err := onACTmpl.Execute(buf, data); err == nil {
+				outputBlock.FullText = buf.String()
+			} else {
+				outputBlock.FullText = fmt.Sprint(err)
+			}
 		}
 
 		switch {
