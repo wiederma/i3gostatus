@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/pelletier/go-toml"
 	"github.com/rumpelsepp/i3gostatus/lib/config"
@@ -86,10 +87,15 @@ func (c *Config) Run(args *model.ModuleArgs) {
 
 		args.EventCh <- outputBlock
 
-		// Block here until sth. happens.
-		// This is better than using in for { ... } since
-		// this acts as a do { ... } while() loop and we do
-		// not have to wait for the first event at startup.
-		<-sigCh
+		// Block here until sth. happens. This is better than using in for { ... }
+		// since this acts as a do { ... } while() loop and we do not have to
+		// wait for the first event at startup. Also, we need to specify a
+		// timeout, since the module could hang in some circumstances (don't
+		// know why, but it happened).
+		select {
+		case <-sigCh:
+		case <-time.After(10 * time.Second):
+			continue
+		}
 	}
 }
