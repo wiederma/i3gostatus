@@ -76,13 +76,19 @@ func (c *Config) Run(args *model.ModuleArgs) {
 		switch {
 		case data.Percentage >= 66:
 			outputBlock.Color = "#00ff00"
+			outputBlock.Background = "000000"
 		case data.Percentage < 66 && data.Percentage >= 33:
 			outputBlock.Color = "#ffff00"
+			outputBlock.Background = "000000"
 		case data.Percentage < 33 && data.Percentage >= 10:
 			outputBlock.Color = "#ff0000"
-		default:
+			outputBlock.Background = "000000"
+		case data.Percentage < 10:
 			outputBlock.Color = "#ffffff"
 			outputBlock.Background = "ff0000"
+		default:
+			outputBlock.Color = "#ffffff"
+			outputBlock.Background = "000000"
 		}
 
 		args.EventCh <- outputBlock
